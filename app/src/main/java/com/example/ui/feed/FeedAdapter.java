@@ -90,14 +90,9 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
                 binding.textPostHandleTime.setText("@" + author.getUsername() + " • " + timeSpan);
 
                 if (author.getAvatarPath() != null) {
-                    File file = new File(author.getAvatarPath());
-                    if (file.exists()) {
-                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                        if (bitmap != null) {
-                            binding.imagePostAvatar.setImageBitmap(bitmap);
-                        } else {
-                            binding.imagePostAvatar.setImageResource(R.drawable.ic_person_placeholder);
-                        }
+                    Bitmap bitmap = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), author.getAvatarPath(), 120);
+                    if (bitmap != null) {
+                        binding.imagePostAvatar.setImageBitmap(bitmap);
                     } else {
                         binding.imagePostAvatar.setImageResource(R.drawable.ic_person_placeholder);
                     }
@@ -127,15 +122,10 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
             // Attached Media Preview
             if (!item.getMediaList().isEmpty()) {
                 String mediaPath = item.getMediaList().get(0).getMediaPath();
-                File imgFile = new File(mediaPath);
-                if (imgFile.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    if (bm != null) {
-                        binding.imagePostMedia.setImageBitmap(bm);
-                        binding.imagePostMedia.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.imagePostMedia.setVisibility(View.GONE);
-                    }
+                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), mediaPath, 1080);
+                if (bm != null) {
+                    binding.imagePostMedia.setImageBitmap(bm);
+                    binding.imagePostMedia.setVisibility(View.VISIBLE);
                 } else {
                     binding.imagePostMedia.setVisibility(View.GONE);
                 }

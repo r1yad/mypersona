@@ -6,6 +6,9 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.data.entity.PersonaEntity;
@@ -16,6 +19,7 @@ import com.example.ui.feed.FeedFragment;
 import com.example.ui.persona.PersonaSwitcherBottomSheet;
 import com.example.ui.persona.PersonasFragment;
 import com.example.ui.settings.SettingsFragment;
+import com.example.util.MediaHelper;
 
 import java.io.File;
 
@@ -37,6 +41,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         repository = AppRepository.getInstance(this);
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
+        });
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.bottomNavigation, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
+            return windowInsets;
+        });
 
         // Setup fragment container
         getSupportFragmentManager().beginTransaction()
@@ -102,13 +118,10 @@ public class MainActivity extends AppCompatActivity {
         if (persona != null) {
             binding.textActivePersonaName.setText(persona.getDisplayName());
             if (persona.getAvatarPath() != null) {
-                File f = new File(persona.getAvatarPath());
-                if (f.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    if (bm != null) {
-                        binding.imageActivePersonaAvatar.setImageBitmap(bm);
-                        return;
-                    }
+                Bitmap bm = MediaHelper.loadBitmap(this, persona.getAvatarPath(), 100);
+                if (bm != null) {
+                    binding.imageActivePersonaAvatar.setImageBitmap(bm);
+                    return;
                 }
             }
             binding.imageActivePersonaAvatar.setImageResource(R.drawable.ic_person_placeholder);

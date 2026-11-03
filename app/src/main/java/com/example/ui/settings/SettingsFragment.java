@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.R;
 import com.example.backup.BackupManager;
+import com.example.data.repository.AppRepository;
 import com.example.databinding.FragmentSettingsBinding;
 
 public class SettingsFragment extends Fragment {
@@ -84,7 +85,7 @@ public class SettingsFragment extends Fragment {
 
         // Export Backup
         binding.btnExportBackup.setOnClickListener(v -> {
-            String filename = "PersonaNet_Backup_" + (System.currentTimeMillis() / 1000) + ".zip";
+            String filename = "MyPersona_Backup_" + (System.currentTimeMillis() / 1000) + ".zip";
             createDocumentLauncher.launch(filename);
         });
 
@@ -103,6 +104,25 @@ public class SettingsFragment extends Fragment {
             } else {
                 openDocumentLauncher.launch(new String[]{"application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*"});
             }
+        });
+
+        // SHA-256 Content Deduplication
+        binding.btnDeduplicateMedia.setOnClickListener(v -> {
+            binding.btnDeduplicateMedia.setEnabled(false);
+            AppRepository repo = AppRepository.getInstance(requireContext());
+            repo.getExecutor().execute(() -> {
+                int removed = com.example.util.MediaHelper.deduplicateMediaDatabase(requireContext(), repo.getDatabase());
+                requireActivity().runOnUiThread(() -> {
+                    binding.btnDeduplicateMedia.setEnabled(true);
+                    viewModel.refreshStats();
+                    String msg = removed > 0 
+                            ? "✔ Successfully cleaned " + removed + " duplicate image files (SHA-256 matching)!"
+                            : "✔ Storage clean: No duplicate images detected.";
+                    binding.textBackupStatus.setText(msg);
+                    binding.textBackupStatus.setTextColor(requireContext().getColor(R.color.emerald_success));
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+                });
+            });
         });
 
         // Clear Database

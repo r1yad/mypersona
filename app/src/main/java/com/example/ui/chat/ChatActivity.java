@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.R;
@@ -15,6 +18,7 @@ import com.example.data.entity.MessageEntity;
 import com.example.data.entity.PersonaEntity;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityChatBinding;
+import com.example.util.MediaHelper;
 
 import java.io.File;
 import java.util.List;
@@ -53,6 +57,18 @@ public class ChatActivity extends AppCompatActivity {
         binding.recyclerMessages.setAdapter(messagesAdapter);
 
         binding.btnChatBack.setOnClickListener(v -> finish());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
+        });
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutChatInput, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
+            return windowInsets;
+        });
 
         // Toggle speaker mid-chat
         binding.chipSwitchSpeaker.setOnClickListener(v -> toggleSpeaker());

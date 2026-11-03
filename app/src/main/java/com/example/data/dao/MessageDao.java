@@ -42,6 +42,9 @@ public interface MessageDao {
     @Query("DELETE FROM messages WHERE conversationId = :conversationId")
     void deleteForConversation(String conversationId);
 
+    @Query("UPDATE messages SET mediaPath = :newPath WHERE mediaPath = :oldPath")
+    void updateMessageMediaPath(String oldPath, String newPath);
+
     @Query("DELETE FROM messages")
     void deleteAll();
 }

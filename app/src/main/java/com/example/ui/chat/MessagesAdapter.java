@@ -126,10 +126,11 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, RecyclerView.Vie
             if (sender != null) {
                 binding.textMessageSender.setText(sender.getDisplayName());
                 if (sender.getAvatarPath() != null) {
-                    File f = new File(sender.getAvatarPath());
-                    if (f.exists()) {
-                        Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                        if (bm != null) binding.imageMessageAvatar.setImageBitmap(bm);
+                    Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), sender.getAvatarPath(), 100);
+                    if (bm != null) {
+                        binding.imageMessageAvatar.setImageBitmap(bm);
+                    } else {
+                        binding.imageMessageAvatar.setImageResource(R.drawable.ic_person_placeholder);
                     }
                 } else {
                     binding.imageMessageAvatar.setImageResource(R.drawable.ic_person_placeholder);

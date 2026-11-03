@@ -1,145 +1,117 @@
-# PersonaNet — Offline Role-Playing Social Media Simulator
+# Image Deduplication, WebP Compression, Legacy Backup Restoration, Natural Aspect Ratio & System Insets Plan
 
-PersonaNet is a 100% native Java Android application built for offline role-playing and character-driven social simulation. Users can create, switch between, and manage multiple fictional personas, publish timeline posts, interact via nested comments and likes, and direct message between characters—all with zero external network dependencies and complete backward/forward-compatible JSON/ZIP backup and restore.
+Implement SHA-256 content deduplication for image storage, high-efficiency WebP lossy compression on upload, path and format normalization for legacy `.webp` backups, natural aspect ratio scaling for timeline and post views, and system window insets clearance across all screens.
 
-## User Review & Critical Decisions
+### User Review & Critical Decisions
 
 > [!IMPORTANT]
-> The architectural and design decisions below incorporate your answers from the clarification phase. Please review before proceeding.
-
-- **Visual Theme & Palette (Confirmed)**: Deep Indigo and Slate Dark Mode featuring midnight slate backgrounds (`#0B0E14`), deep indigo surfaces (`#161B26` / `#1F2637`), radiant indigo accents (`#6366F1`), and electric violet accents (`#8B5CF6`).
-- **Initial Data State (Confirmed)**: Starts completely empty with zero pre-seeded personas. First launch presents an inviting onboarding empty state with a "Create Your First Persona" call to action.
-- **Layout & Navigation (Confirmed)**: Card-based timeline feed with Material 3 Bottom Navigation, top app bar character badge with quick-switch BottomSheetDialogFragment, and dedicated screens for Feed, Messages (DMs), Personas, and Settings.
-- **100% Native Java Enforcement**: No Kotlin source files or hybrid Kotlin artifacts. Utilizes Java `ExecutorService`, `LiveData`, ViewBinding, and Room Java annotations (`@Entity`, `@Dao`, `@Database`).
-
----
-
-## 1. Overview & Core Concept
-
-PersonaNet allows writers, tabletop gamers, and creative storytellers to simulate social network interactions between their original characters entirely on their own Android device. Users can:
-- Author and maintain multiple distinct personas with rich traits (personality, speaking style, instructions, background lore, avatars, banners).
-- Seamlessly switch their "Active Persona" via a persistent top-bar switcher.
-- Post feed updates with text and images, like posts from any persona, and leave threaded comments.
-- Roleplay bilateral direct messages (DMs) where the user can swap speaking perspectives dynamically mid-conversation.
-- Leverage an offline, rule-based Roleplay Assistant Engine tailored to character traits (Mystic, Sarcastic, Royal, Cyberpunk, Whimsical) for creative dialogue and post suggestions.
-- Export and import complete archives (metadata, Room tables in `data.json`, and extracted media files in `media/`) matching the legacy PersonaNet `.zip` backup specification.
+> The following implementation specifications have been confirmed based on your requirements:
+> - **SHA-256 Image Deduplication**:
+>   - *On Upload*: Calculate SHA-256 hash of image data before persisting. If an existing image in `filesDir/media/` matches the hash, reuse the canonical file path rather than creating a duplicate.
+>   - *On Backup Import*: Run an automatic deduplication pass during backup extraction/restore. Scan all restored media files, identify duplicate SHA-256 hashes, re-point all Room database references (`personas.avatarPath`, `coverPath`, `post_media.mediaPath`, `messages.mediaPath`, `media_assets.relativePath`) to the first/canonical file, and delete the redundant duplicate files.
+>   - *Canonical Retention*: Retain the first encountered file path for matching SHA-256 hashes and cleanly re-link all referencing entities.
+> - **WebP Lossy Compression**: Compress newly uploaded avatars and post attachments into WebP format (quality 80, downscaled if exceeding 1920px max dimension).
+> - **Legacy Backup Image Restoration**: Bridge legacy `.webp` image paths (absolute paths from previous devices or relative `media/` paths) via path normalization so old character avatars and media display seamlessly.
+> - **Natural Aspect Ratio**: Remove fixed 200dp cropping (`centerCrop`) and enable `adjustViewBounds="true"` with `scaleType="fitCenter"` so photos fill screen width naturally without cut-offs.
+> - **System Window Insets**: Programmatically bind status bar top insets and navigation bar bottom insets via `ViewCompat.setOnApplyWindowInsetsListener` across all activities.
 
 ---
 
-## 2. User Experience & Visual Design
+### 1. Overview & Core Concept
 
-### Key User Flows
-1. **First Launch & Persona Creation**:
-   - Empty state explains the concept with an illustrative graphic and prompt: "Your fictional social network awaits. Create your first persona to start publishing and chatting."
-   - Persona Creation Form: display name, unique handle `@username`, bio, avatar/banner selection, and roleplay attributes (personality traits, speaking style, instructions, background story).
-2. **Feed & Timeline**:
-   - Header shows the currently active persona badge; tapping opens the quick-switch bottom sheet.
-   - Posts render as elevated cards with avatar, display name, handle, timestamp, body text, multi-image preview, and interactive like and comment buttons.
-   - Floating Action Button (FAB) opens post composer with persona selector, character count, image picker, and Roleplay Assistant idea prompt.
-   - Tapping a post opens the Post Detail Screen with full comments list, reply input, and like toggle.
-3. **Direct Messages (DMs)**:
-   - Conversation list displays character pairs, timestamp, and last message preview.
-   - Chat view displays styled bubbles (incoming vs. outgoing based on current speaker). A quick persona toggle button in the chat header lets the user roleplay both sides of the dialogue fluidly.
-4. **Persona Directory**:
-   - Grid or card list of all created personas, showing their stats (post count, conversations), edit button, and "Set as Active" action.
-5. **Settings, Backup & Restore**:
-   - System controls for Full Restore (clean wipe and unpack) and Merge Import (preserve existing data, resolve conflicts by appending `_imported`).
-   - Export Archive creates a compliant `.zip` containing `manifest.json`, `data.json`, and `media/` image assets.
-
-### Visual Identity & Theme Tokens
-- **Background**: `#0B0E14` (Deep Midnight Slate)
-- **Surface**: `#161B26` (Dark Navy/Slate Surface)
-- **Surface Variant / Cards**: `#1F2637` (Elevated Charcoal Navy)
-- **Primary / Accent**: `#6366F1` (Indigo Glow)
-- **Secondary / Accent**: `#8B5CF6` (Electric Violet)
-- **Text Primary**: `#F1F5F9` (High-contrast Off-White)
-- **Text Secondary / Muted**: `#94A3B8` (Slate Gray)
-- **Divider & Borders**: `#2E384D`
-- **Success / Positive**: `#10B981` (Emerald)
+1. **SHA-256 Content Deduplication**:
+   Users frequently upload the same picture for different characters or multiple posts, and backup archives can accumulate redundant duplicates under different filenames. Using cryptographic SHA-256 hashing:
+   - Newly picked images are checked against existing media hashes; matches reuse the existing local file.
+   - Restoring backups automatically runs a deduplication sweep: identical files are merged, Room entity foreign paths are updated in a single transaction, and orphan duplicate files are removed from disk.
+2. **WebP Compression on Upload**:
+   When choosing photos from the device gallery, the image is decoded with memory-efficient sample bounds, converted into WebP format (`Bitmap.CompressFormat.WEBP` / `WEBP_LOSSY`), and saved to internal app storage.
+3. **Legacy Backup WebP Compatibility**:
+   A path-resolution pipeline resolves legacy absolute paths (e.g. `/data/user/0/com.previous.app/files/media/...`), relative paths (`media/...`), and handles `.webp` and `.jpg` extension variations.
+4. **Uncropped Natural Aspect Ratio**:
+   Post cards and detail views display images in their native aspect ratio (portrait, landscape, square) bounded by screen width.
+5. **System Bar Inset Clearance**:
+   Status bar and navigation bar insets are explicitly applied to top app bars, back buttons, and bottom action rows across all activities.
 
 ---
 
-## 3. Key Product Decisions & Trade-Offs
+### 2. User Experience & Visual Design
 
-- **Java-Exclusive Toolchain**:
-  - *Chosen Approach*: Configure `build.gradle.kts` for Java ViewBinding, Room Java compiler annotation processing (`annotationProcessor` / `ksp`), and remove all Kotlin files (`MainActivity.kt`, theme files, etc.) replacing them with clean Java implementations.
-  - *Why*: Satisfies strict 100% Java architectural mandate while maintaining Android Gradle Plugin 9.x compatibility.
-- **Classic Android Views + Material Components 3**:
-  - *Chosen Approach*: XML layouts with Material 3 styling (`Theme.Material3.DayNight.NoActionBar`), `MaterialCardView`, `BottomNavigationView`, `FloatingActionButton`, and `RecyclerView`.
-  - *Why*: Guarantees rock-solid native Java performance, robust ViewBinding type-safety, and seamless compatibility without Compose runtime dependencies.
-- **Unified Legacy Backup Engine**:
-  - *Chosen Approach*: Streamlined `BackupManager` using native `ZipInputStream`, `ZipOutputStream`, and `org.json.JSONObject` / `org.json.JSONArray`.
-  - *Why*: Guarantees zero regression on legacy archives without needing heavy reflection or third-party serialization libraries.
+- **Storage Efficiency & Integrity**:
+  - Re-uploading or restoring duplicate images consumes zero extra disk space.
+  - Avatars and post images remain sharp and render fast from unified WebP assets.
+- **Flawless Header & Navigation Clearance**:
+  - Active persona chip and title in `MainActivity` sit cleanly below the system status icons.
+  - Back buttons, title text, and action buttons in `PersonaProfileActivity`, `PersonaEditActivity`, `PostDetailActivity`, and `ChatActivity` have full 48dp minimum touch target clearance without overlapping status bar indicators.
+  - Floating bottom input bars in `ChatActivity` and `PostDetailActivity` respect the navigation bar and keyboard insets.
+- **Responsive Media Timeline**:
+  - Full-width images scale smoothly to their true aspect ratio.
+  - Vertical photos (e.g. character art, portrait captures) are never awkwardly truncated at 200dp.
 
 ---
 
-## 4. Technical Architecture & Data Strategy
+### 3. Key Product Decisions & Trade-Offs
 
-### System Architecture Diagram
+- **Hash-Based Content Addressing vs. Filename Matching**:
+  - *Chosen Approach*: Compute SHA-256 on byte streams.
+  - *Why*: Duplicate images in user backups or exports have different filenames (e.g. `avatar_a1b2.webp` vs `post_c3d4.webp` or `IMG_2026.jpg`). Only SHA-256 provides 100% collision-free identification of identical media content.
+- **Automatic Auto-Clean During Import**:
+  - *Chosen Approach*: Execute deduplication immediately inside the Room restore transaction.
+  - *Why*: Eliminates duplicates before they can fragment the database and frees up device storage immediately upon backup completion without requiring extra manual steps from the user.
+- **Preserve First Encountered File**:
+  - *Chosen Approach*: Keep the existing first file on disk and re-point all subsequent duplicate references to it.
+  - *Why*: Preserves file timestamps, avoids file-rename race conditions, and requires only fast SQL `UPDATE` statements for referencing rows.
+
+---
+
+### 4. Technical Architecture & Data Strategy
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        Presentation Layer (Java)                       │
-│  ┌────────────────────┐  ┌──────────────────┐  ┌────────────────────┐  │
-│  │    FeedFragment    │  │ MessagesFragment │  │  PersonasFragment  │  │
-│  └─────────┬──────────┘  └────────┬─────────┘  └─────────┬──────────┘  │
-│            │                      │                      │             │
-│            ▼                      ▼                      ▼             │
-│  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │            ViewModels (FeedViewModel, ChatViewModel, etc.)       │  │
-│  │                    LiveData & MutableLiveData                    │  │
-│  └──────────────────────────────────┬───────────────────────────────┘  │
-└─────────────────────────────────────┼──────────────────────────────────┘
-                                      │
-┌─────────────────────────────────────▼──────────────────────────────────┐
-│                           Repository Layer                             │
-│   AppRepository (Java ExecutorService for async background tasks)      │
-│   BackupManager (Zip & JSON parser for legacy export/import)          │
-│   RoleplayAssistant (Rule-based prompt & dialogue generator)           │
-└─────────────────────────────────────┬──────────────────────────────────┘
-                                      │
-┌─────────────────────────────────────▼──────────────────────────────────┐
-│                           Room Database (Java)                         │
-│  AppDatabase:                                                          │
-│  - PersonaDao          - PostDao            - CommentDao               │
-│  - LikeDao             - ConversationDao    - MessageDao               │
-│  Entities: PersonaEntity, PostEntity, PostMediaEntity, CommentEntity,  │
-│            PostLikeEntity, CommentLikeEntity, ConversationEntity,      │
-│            MessageEntity, MediaAssetEntity                             │
-│  Storage: SQLite on device + internal filesDir/media for image files   │
-└────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│                   Image Selection / Restore            │
+├────────────────────────────────────────────────────────┤
+│ 1. Read Stream & Compute SHA-256 Digest                │
+│    MessageDigest.getInstance("SHA-256")                │
+├────────────────────────────────────────────────────────┤
+│ 2. Check Existing Media Hashes in Media Directory      │
+│    ┌───────────────────────┬─────────────────────────┐ │
+│    │ MATCH FOUND           │ NO MATCH                │ │
+│    │ Reuse canonical file  │ Compress to WebP Lossy  │ │
+│    │ Re-point DB reference │ Save new .webp file     │ │
+│    └───────────────────────┴─────────────────────────┘ │
+├────────────────────────────────────────────────────────┤
+│ 3. Database Sync & Reference Updates (Room Transaction)│
+│    - Update personas.avatarPath / coverPath            │
+│    - Update post_media.mediaPath                       │
+│    - Update messages.mediaPath                         │
+│    - Delete duplicate file on disk                     │
+├────────────────────────────────────────────────────────┤
+│ 4. UI Rendering (MediaHelper.resolveFile & Aspect)     │
+│    - adjustViewBounds="true", scaleType="fitCenter"    │
+│    - ViewCompat status bar and navigation bar insets   │
+└────────────────────────────────────────────────────────┘
 ```
 
-### Complete Room Entity Specification
-1. `PersonaEntity`: `id` (PK, UUID string), `displayName`, `username`, `bio`, `avatarPath`, `coverPath`, `personalityTraits`, `speakingStyle`, `roleplayInstructions`, `backgroundStory`, `createdAt`, `updatedAt`.
-2. `PostEntity`: `id` (PK), `authorPersonaId`, `textContent`, `createdAt`, `updatedAt`.
-3. `PostMediaEntity`: `id` (PK), `postId`, `mediaPath`, `mimeType`, `orderIndex`.
-4. `CommentEntity`: `id` (PK), `postId`, `parentCommentId`, `authorPersonaId`, `textContent`, `createdAt`, `updatedAt`.
-5. `PostLikeEntity`: composite PK (`postId`, `personaId`), `createdAt`.
-6. `CommentLikeEntity`: composite PK (`commentId`, `personaId`), `createdAt`.
-7. `ConversationEntity`: `id` (PK), `personaAId`, `personaBId`, `createdAt`, `lastActivityAt`, `lastMessagePreview`.
-8. `MessageEntity`: `id` (PK), `conversationId`, `senderPersonaId`, `replyToMessageId`, `textContent`, `mediaPath`, `mimeType`, `createdAt`, `isEdited`, `isRead`.
-9. `MediaAssetEntity`: `id` (PK), `relativePath`, `mimeType`, `width`, `height`, `fileSizeBytes`, `createdAt`.
+#### Detailed Execution Steps
 
----
+1. **`MediaHelper.java`**:
+   - `calculateSha256(File file)` and `calculateSha256(InputStream is)`: computes 64-char hex string.
+   - `findFileBySha256(Context context, String sha256)`: scans `getFilesDir()/media/` for an existing matching file.
+   - `compressAndSaveWebP(Context context, Uri uri, String prefix)`:
+     - Calculates SHA-256 of incoming stream.
+     - If matching file exists, returns existing file's absolute path.
+     - Otherwise, decodes bitmap with downsampling (max dimension 1920px), compresses to WebP Lossy (quality 80), and writes to `media/<prefix>_<uuid>.webp`.
+   - `resolveFile(Context context, String path)`:
+     - Handles direct file paths.
+     - Normalizes legacy backup paths (`/data/user/0/...` -> local `files/media/<filename>`).
+     - Tries `.webp` / `.jpg` fallback extensions.
+   - `deduplicateMediaDatabase(Context context, AppDatabase db)`:
+     - Scans all files in `media/`, groups by SHA-256.
+     - For duplicate groups: elects canonical first file, re-points referencing rows in `PersonaEntity`, `PostMediaEntity`, and `MessageEntity`, then deletes duplicate files from disk.
 
-## 5. Execution Plan
+2. **`BackupManager.java`**:
+   - During `importBackup`, normalize all file paths to local app storage.
+   - Run `MediaHelper.deduplicateMediaDatabase(context, db)` within the import process to automatically deduplicate restored assets.
 
-1. **Build & Toolchain Configuration**:
-   - Update `app/build.gradle.kts` to enable ViewBinding, configure Room compiler for Java, remove Kotlin compose dependencies, and set `minSdk = 26`.
-   - Update `metadata.json` and `res/values/strings.xml` to set application name to "PersonaNet".
-2. **Theme, Colors & Drawables**:
-   - Create Material 3 XML styles, custom colors (Deep Indigo/Slate), and vector drawables for navigation, avatars, and actions.
-3. **Database & Data Layer (Room & DAOs in Java)**:
-   - Implement all 9 entities, corresponding DAOs, and `AppDatabase`.
-   - Implement `AppRepository` managing disk I/O on Java `ExecutorService`.
-4. **Backup & Restore System**:
-   - Implement `BackupManager` supporting full wipe restore and conflict-merging restore using `ZipInputStream`/`ZipOutputStream` and `org.json`.
-5. **UI & Screens (Java + XML ViewBinding)**:
-   - `MainActivity`: Bottom navigation coordinator, top bar active persona chip, and quick-switch modal sheet.
-   - `FeedFragment` & `PostDetailActivity`: Posts list, post creator with roleplay assistant prompt, comments recycler view.
-   - `MessagesFragment` & `ChatActivity`: Conversation list and chat thread with bidirectional persona switcher.
-   - `PersonasFragment` & `PersonaEditActivity`: Persona cards and profile editor.
-   - `SettingsFragment`: Export and Import actions with summary display.
-6. **Compilation & Verification**:
-   - Run `compile_applet` to verify clean build without warnings or missing symbols.
+3. **UI Layouts & Insets**:
+   - `item_post_card.xml` & `activity_post_detail.xml`: Set `layout_height="wrap_content"`, `adjustViewBounds="true"`, `scaleType="fitCenter"`, and `maxHeight="520dp"` on media views.
+   - `MainActivity`, `PostDetailActivity`, `PersonaProfileActivity`, `PersonaEditActivity`, `ChatActivity`: Apply `ViewCompat.setOnApplyWindowInsetsListener` to inject status bar top padding into top toolbars/headers and navigation bar bottom padding into bottom action rows.

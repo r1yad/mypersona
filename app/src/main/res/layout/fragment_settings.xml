@@ -131,6 +131,20 @@
                     app:iconTint="@color/violet_accent"
                     app:strokeColor="@color/violet_accent" />
 
+                <!-- SHA-256 Deduplication Action -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_deduplicate_media"
+                    style="@style/Widget.Material3.Button.TonalButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="Clean Duplicate Images (SHA-256)"
+                    android:textColor="@color/text_primary"
+                    app:backgroundTint="@color/surface_elevated"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_sparkles"
+                    app:iconTint="@color/indigo_primary" />
+
                 <!-- Action Summary Result Box -->
                 <TextView
                     android:id="@+id/text_backup_status"

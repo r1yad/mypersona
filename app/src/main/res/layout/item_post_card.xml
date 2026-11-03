@@ -83,10 +83,12 @@
         <ImageView
             android:id="@+id/image_post_media"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:adjustViewBounds="true"
+            android:maxHeight="520dp"
             android:contentDescription="@string/app_name"
-            android:scaleType="centerCrop"
+            android:scaleType="fitCenter"
             android:visibility="gone" />
 
         <!-- Divider -->

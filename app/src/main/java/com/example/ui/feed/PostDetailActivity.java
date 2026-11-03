@@ -9,6 +9,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.R;
@@ -18,6 +21,7 @@ import com.example.data.entity.PersonaEntity;
 import com.example.data.entity.PostWithDetails;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPostDetailBinding;
+import com.example.util.MediaHelper;
 
 import java.io.File;
 
@@ -51,6 +55,18 @@ public class PostDetailActivity extends AppCompatActivity {
         binding.recyclerComments.setAdapter(commentsAdapter);
 
         binding.btnBack.setOnClickListener(v -> finish());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
+        });
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutCommentInput, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
+            return windowInsets;
+        });
 
         repository.getActivePersonaLive().observe(this, persona -> {
             currentActivePersona = persona;
@@ -102,14 +118,9 @@ public class PostDetailActivity extends AppCompatActivity {
             binding.textDetailHandleTime.setText("@" + author.getUsername() + " • " + timeSpan);
 
             if (author.getAvatarPath() != null) {
-                File file = new File(author.getAvatarPath());
-                if (file.exists()) {
-                    Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                    if (bitmap != null) {
-                        binding.imageDetailAvatar.setImageBitmap(bitmap);
-                    } else {
-                        binding.imageDetailAvatar.setImageResource(R.drawable.ic_person_placeholder);
-                    }
+                Bitmap bitmap = MediaHelper.loadBitmap(this, author.getAvatarPath(), 120);
+                if (bitmap != null) {
+                    binding.imageDetailAvatar.setImageBitmap(bitmap);
                 } else {
                     binding.imageDetailAvatar.setImageResource(R.drawable.ic_person_placeholder);
                 }
@@ -128,15 +139,10 @@ public class PostDetailActivity extends AppCompatActivity {
 
         if (!item.getMediaList().isEmpty()) {
             String path = item.getMediaList().get(0).getMediaPath();
-            File img = new File(path);
-            if (img.exists()) {
-                Bitmap bm = BitmapFactory.decodeFile(img.getAbsolutePath());
-                if (bm != null) {
-                    binding.imageDetailMedia.setImageBitmap(bm);
-                    binding.imageDetailMedia.setVisibility(View.VISIBLE);
-                } else {
-                    binding.imageDetailMedia.setVisibility(View.GONE);
-                }
+            Bitmap bm = MediaHelper.loadBitmap(this, path, 1080);
+            if (bm != null) {
+                binding.imageDetailMedia.setImageBitmap(bm);
+                binding.imageDetailMedia.setVisibility(View.VISIBLE);
             } else {
                 binding.imageDetailMedia.setVisibility(View.GONE);
             }

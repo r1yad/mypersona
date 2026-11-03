@@ -76,20 +76,22 @@ public class ConversationsAdapter extends ListAdapter<ConversationWithDetails, C
             binding.textConvTitle.setText(nameA + " & " + nameB);
 
             if (pA != null && pA.getAvatarPath() != null) {
-                File f = new File(pA.getAvatarPath());
-                if (f.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    if (bm != null) binding.imagePersonaA.setImageBitmap(bm);
+                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), pA.getAvatarPath(), 100);
+                if (bm != null) {
+                    binding.imagePersonaA.setImageBitmap(bm);
+                } else {
+                    binding.imagePersonaA.setImageResource(R.drawable.ic_person_placeholder);
                 }
             } else {
                 binding.imagePersonaA.setImageResource(R.drawable.ic_person_placeholder);
             }
 
             if (pB != null && pB.getAvatarPath() != null) {
-                File f = new File(pB.getAvatarPath());
-                if (f.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    if (bm != null) binding.imagePersonaB.setImageBitmap(bm);
+                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), pB.getAvatarPath(), 100);
+                if (bm != null) {
+                    binding.imagePersonaB.setImageBitmap(bm);
+                } else {
+                    binding.imagePersonaB.setImageResource(R.drawable.ic_person_placeholder);
                 }
             } else {
                 binding.imagePersonaB.setImageResource(R.drawable.ic_person_placeholder);

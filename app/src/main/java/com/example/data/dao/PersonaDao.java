@@ -45,6 +45,12 @@ public interface PersonaDao {
     @Query("SELECT COUNT(*) FROM personas")
     int getCount();
 
+    @Query("UPDATE personas SET avatarPath = :newPath WHERE avatarPath = :oldPath")
+    void updateAvatarPath(String oldPath, String newPath);
+
+    @Query("UPDATE personas SET coverPath = :newPath WHERE coverPath = :oldPath")
+    void updateCoverPath(String oldPath, String newPath);
+
     @Query("DELETE FROM personas")
     void deleteAll();
 }

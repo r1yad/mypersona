@@ -11,15 +11,17 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.example.R;
 import com.example.data.entity.PersonaEntity;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPersonaEditBinding;
+import com.example.util.MediaHelper;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.UUID;
 
 public class PersonaEditActivity extends AppCompatActivity {
@@ -56,6 +58,12 @@ public class PersonaEditActivity extends AppCompatActivity {
             binding.btnDeletePersona.setVisibility(View.GONE);
         }
 
+        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
+        });
+
         binding.btnEditBack.setOnClickListener(v -> finish());
         binding.btnSavePersona.setOnClickListener(v -> savePersona());
         binding.btnDeletePersona.setOnClickListener(v -> confirmDelete());
@@ -81,13 +89,10 @@ public class PersonaEditActivity extends AppCompatActivity {
                     binding.editBackgroundStory.setText(existingPersona.getBackgroundStory());
 
                     if (selectedAvatarPath != null) {
-                        File f = new File(selectedAvatarPath);
-                        if (f.exists()) {
-                            Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                            if (bm != null) {
-                                binding.imageEditAvatar.setImageBitmap(bm);
-                                binding.textAvatarHint.setText("Tap to change profile picture");
-                            }
+                        Bitmap bm = MediaHelper.loadBitmap(this, selectedAvatarPath, 400);
+                        if (bm != null) {
+                            binding.imageEditAvatar.setImageBitmap(bm);
+                            binding.textAvatarHint.setText("Tap to change profile picture");
                         }
                     }
                 });
@@ -96,27 +101,17 @@ public class PersonaEditActivity extends AppCompatActivity {
     }
 
     private void saveAvatarToInternalStorage(Uri uri) {
-        try (InputStream is = getContentResolver().openInputStream(uri)) {
-            if (is == null) return;
-            File mediaDir = new File(getFilesDir(), "media");
-            if (!mediaDir.exists()) mediaDir.mkdirs();
-
-            String filename = "avatar_" + UUID.randomUUID().toString() + ".jpg";
-            File targetFile = new File(mediaDir, filename);
-
-            try (FileOutputStream fos = new FileOutputStream(targetFile)) {
-                byte[] buf = new byte[8192];
-                int len;
-                while ((len = is.read(buf)) > 0) {
-                    fos.write(buf, 0, len);
+        try {
+            String path = MediaHelper.compressAndSaveWebP(this, uri, "avatar");
+            if (path != null) {
+                selectedAvatarPath = path;
+                Bitmap bm = MediaHelper.loadBitmap(this, path, 400);
+                if (bm != null) {
+                    binding.imageEditAvatar.setImageBitmap(bm);
+                    binding.textAvatarHint.setText("Profile picture selected (tap to change)");
                 }
-            }
-
-            selectedAvatarPath = targetFile.getAbsolutePath();
-            Bitmap bm = BitmapFactory.decodeFile(targetFile.getAbsolutePath());
-            if (bm != null) {
-                binding.imageEditAvatar.setImageBitmap(bm);
-                binding.textAvatarHint.setText("Profile picture selected (tap to change)");
+            } else {
+                Toast.makeText(this, "Failed to compress profile picture", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Toast.makeText(this, "Failed to load picture: " + e.getMessage(), Toast.LENGTH_SHORT).show();

@@ -101,11 +101,9 @@ public class PersonasAdapter extends ListAdapter<PersonaEntity, PersonasAdapter.
             }
 
             if (persona.getAvatarPath() != null) {
-                File f = new File(persona.getAvatarPath());
-                if (f.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    if (bm != null) binding.imagePersonaAvatar.setImageBitmap(bm);
-                    else binding.imagePersonaAvatar.setImageResource(R.drawable.ic_person_placeholder);
+                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), persona.getAvatarPath(), 160);
+                if (bm != null) {
+                    binding.imagePersonaAvatar.setImageBitmap(bm);
                 } else {
                     binding.imagePersonaAvatar.setImageResource(R.drawable.ic_person_placeholder);
                 }

@@ -72,14 +72,9 @@ public class CreatePostDialog extends DialogFragment {
             if (persona != null) {
                 binding.textPostingAs.setText("Posting as " + persona.getDisplayName() + " (@" + persona.getUsername() + ")");
                 if (persona.getAvatarPath() != null) {
-                    File f = new File(persona.getAvatarPath());
-                    if (f.exists()) {
-                        Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                        if (bm != null) {
-                            binding.imageAuthorAvatar.setImageBitmap(bm);
-                        } else {
-                            binding.imageAuthorAvatar.setImageResource(R.drawable.ic_person_placeholder);
-                        }
+                    Bitmap bm = com.example.util.MediaHelper.loadBitmap(requireContext(), persona.getAvatarPath(), 120);
+                    if (bm != null) {
+                        binding.imageAuthorAvatar.setImageBitmap(bm);
                     } else {
                         binding.imageAuthorAvatar.setImageResource(R.drawable.ic_person_placeholder);
                     }
@@ -136,27 +131,17 @@ public class CreatePostDialog extends DialogFragment {
     }
 
     private void saveImageToInternalStorage(Uri uri) {
-        try (InputStream is = requireContext().getContentResolver().openInputStream(uri)) {
-            if (is == null) return;
-            File mediaDir = new File(requireContext().getFilesDir(), "media");
-            if (!mediaDir.exists()) mediaDir.mkdirs();
-
-            String filename = "post_" + UUID.randomUUID().toString() + ".jpg";
-            File targetFile = new File(mediaDir, filename);
-
-            try (FileOutputStream fos = new FileOutputStream(targetFile)) {
-                byte[] buf = new byte[8192];
-                int len;
-                while ((len = is.read(buf)) > 0) {
-                    fos.write(buf, 0, len);
+        try {
+            String path = com.example.util.MediaHelper.compressAndSaveWebP(requireContext(), uri, "post");
+            if (path != null) {
+                selectedMediaPath = path;
+                Bitmap bm = com.example.util.MediaHelper.loadBitmap(requireContext(), path, 800);
+                if (bm != null) {
+                    binding.imagePreview.setImageBitmap(bm);
+                    binding.layoutMediaPreview.setVisibility(View.VISIBLE);
                 }
-            }
-
-            selectedMediaPath = targetFile.getAbsolutePath();
-            Bitmap bm = BitmapFactory.decodeFile(targetFile.getAbsolutePath());
-            if (bm != null) {
-                binding.imagePreview.setImageBitmap(bm);
-                binding.layoutMediaPreview.setVisibility(View.VISIBLE);
+            } else {
+                Toast.makeText(requireContext(), "Failed to compress image", Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             Toast.makeText(requireContext(), "Failed to attach image: " + e.getMessage(), Toast.LENGTH_SHORT).show();

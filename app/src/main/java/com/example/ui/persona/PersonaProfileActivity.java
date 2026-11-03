@@ -9,6 +9,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.R;
@@ -19,6 +22,7 @@ import com.example.databinding.ActivityPersonaProfileBinding;
 import com.example.ui.chat.ChatActivity;
 import com.example.ui.feed.FeedAdapter;
 import com.example.ui.feed.PostDetailActivity;
+import com.example.util.MediaHelper;
 
 import java.io.File;
 import java.util.List;
@@ -54,6 +58,12 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
         }
 
         binding.toolbarProfile.setNavigationOnClickListener(v -> finish());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarProfile, (v, windowInsets) -> {
+            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
+            return windowInsets;
+        });
 
         feedAdapter = new FeedAdapter(this);
         binding.recyclerProfilePosts.setLayoutManager(new LinearLayoutManager(this));
@@ -116,14 +126,9 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
         }
 
         if (persona.getAvatarPath() != null) {
-            File f = new File(persona.getAvatarPath());
-            if (f.exists()) {
-                Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                if (bm != null) {
-                    binding.imageProfileAvatar.setImageBitmap(bm);
-                } else {
-                    binding.imageProfileAvatar.setImageResource(R.drawable.ic_person_placeholder);
-                }
+            Bitmap bm = MediaHelper.loadBitmap(this, persona.getAvatarPath(), 400);
+            if (bm != null) {
+                binding.imageProfileAvatar.setImageBitmap(bm);
             } else {
                 binding.imageProfileAvatar.setImageResource(R.drawable.ic_person_placeholder);
             }

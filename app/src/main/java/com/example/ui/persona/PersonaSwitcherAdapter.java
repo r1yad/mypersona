@@ -75,11 +75,9 @@ public class PersonaSwitcherAdapter extends RecyclerView.Adapter<PersonaSwitcher
             binding.textSwitcherUsername.setText("@" + persona.getUsername());
 
             if (persona.getAvatarPath() != null) {
-                File f = new File(persona.getAvatarPath());
-                if (f.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    if (bm != null) binding.imageSwitcherAvatar.setImageBitmap(bm);
-                    else binding.imageSwitcherAvatar.setImageResource(R.drawable.ic_person_placeholder);
+                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), persona.getAvatarPath(), 120);
+                if (bm != null) {
+                    binding.imageSwitcherAvatar.setImageBitmap(bm);
                 } else {
                     binding.imageSwitcherAvatar.setImageResource(R.drawable.ic_person_placeholder);
                 }

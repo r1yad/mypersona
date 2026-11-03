@@ -84,8 +84,9 @@
             android:id="@+id/image_preview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:adjustViewBounds="true"
             android:contentDescription="@string/add_image"
-            android:scaleType="centerCrop" />
+            android:scaleType="fitCenter" />
 
         <ImageView
             android:id="@+id/btn_remove_image"

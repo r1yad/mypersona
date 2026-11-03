@@ -72,14 +72,9 @@ public class CommentsAdapter extends ListAdapter<CommentWithAuthor, CommentsAdap
             if (author != null) {
                 binding.textCommentAuthor.setText(author.getDisplayName());
                 if (author.getAvatarPath() != null) {
-                    File file = new File(author.getAvatarPath());
-                    if (file.exists()) {
-                        Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
-                        if (bitmap != null) {
-                            binding.imageCommentAvatar.setImageBitmap(bitmap);
-                        } else {
-                            binding.imageCommentAvatar.setImageResource(R.drawable.ic_person_placeholder);
-                        }
+                    Bitmap bitmap = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), author.getAvatarPath(), 100);
+                    if (bitmap != null) {
+                        binding.imageCommentAvatar.setImageBitmap(bitmap);
                     } else {
                         binding.imageCommentAvatar.setImageResource(R.drawable.ic_person_placeholder);
                     }

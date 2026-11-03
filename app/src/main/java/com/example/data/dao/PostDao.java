@@ -75,6 +75,9 @@ public interface PostDao {
     @Query("DELETE FROM post_media WHERE postId = :postId")
     void deleteMediaForPost(String postId);
 
+    @Query("UPDATE post_media SET mediaPath = :newPath WHERE mediaPath = :oldPath")
+    void updatePostMediaPath(String oldPath, String newPath);
+
     @Query("DELETE FROM post_media")
     void deleteAllMedia();
 }

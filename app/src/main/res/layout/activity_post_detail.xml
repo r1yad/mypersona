@@ -9,7 +9,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar"
         android:layout_width="0dp"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
         android:background="@color/surface_card"
         android:paddingHorizontal="8dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -123,10 +124,12 @@
             <ImageView
                 android:id="@+id/image_detail_media"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
+                android:adjustViewBounds="true"
+                android:maxHeight="520dp"
                 android:contentDescription="@string/app_name"
-                android:scaleType="centerCrop"
+                android:scaleType="fitCenter"
                 android:visibility="gone" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

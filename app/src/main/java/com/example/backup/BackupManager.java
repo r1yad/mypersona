@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.example.data.AppDatabase;
 import com.example.data.entity.CommentEntity;
@@ -323,8 +324,10 @@ public class BackupManager {
                             String displayName = o.getString("displayName");
                             String username = o.getString("username");
                             String bio = o.optString("bio", "");
-                            String avatarPath = o.isNull("avatarPath") ? null : o.optString("avatarPath", null);
-                            String coverPath = o.isNull("coverPath") ? null : o.optString("coverPath", null);
+                            String rawAvatarPath = o.isNull("avatarPath") ? null : o.optString("avatarPath", null);
+                            String rawCoverPath = o.isNull("coverPath") ? null : o.optString("coverPath", null);
+                            String avatarPath = normalizeRestoredPath(context, rawAvatarPath);
+                            String coverPath = normalizeRestoredPath(context, rawCoverPath);
                             String traits = o.optString("personalityTraits", "");
                             String style = o.optString("speakingStyle", "");
                             String instructions = o.optString("roleplayInstructions", "");
@@ -392,7 +395,8 @@ public class BackupManager {
                             JSONObject o = mediaArr.getJSONObject(i);
                             String id = o.getString("id");
                             String postId = o.getString("postId");
-                            String mediaPath = o.getString("mediaPath");
+                            String rawMediaPath = o.getString("mediaPath");
+                            String mediaPath = normalizeRestoredPath(context, rawMediaPath);
                             String mimeType = o.optString("mimeType", "image/jpeg");
                             int orderIndex = o.optInt("orderIndex", 0);
 
@@ -483,7 +487,8 @@ public class BackupManager {
                             String senderId = o.getString("senderPersonaId");
                             String replyId = o.isNull("replyToMessageId") ? null : o.optString("replyToMessageId", null);
                             String text = o.getString("textContent");
-                            String mediaPath = o.isNull("mediaPath") ? null : o.optString("mediaPath", null);
+                            String rawMediaPath = o.isNull("mediaPath") ? null : o.optString("mediaPath", null);
+                            String mediaPath = normalizeRestoredPath(context, rawMediaPath);
                             String mimeType = o.isNull("mimeType") ? null : o.optString("mimeType", null);
                             long createdAt = o.optLong("createdAt", System.currentTimeMillis());
                             boolean isEdited = o.optBoolean("isEdited", false);
@@ -516,6 +521,9 @@ public class BackupManager {
                 }
             });
 
+            // Automatically deduplicate restored media files by SHA-256 and update references
+            com.example.util.MediaHelper.deduplicateMediaDatabase(context, db);
+
             BackupSummary summary = new BackupSummary(true, isRestoreMode ? "Full restore completed successfully" : "Merge import completed successfully");
             summary.personasCount = db.personaDao().getCount();
             summary.postsCount = db.postDao().getPostCount();
@@ -527,6 +535,19 @@ public class BackupManager {
         } catch (Exception e) {
             return new BackupSummary(false, "Import failed: " + e.getMessage());
         }
+    }
+
+    private static String normalizeRestoredPath(@NonNull Context context, @Nullable String rawPath) {
+        if (rawPath == null || rawPath.trim().isEmpty()) {
+            return null;
+        }
+        File resolved = com.example.util.MediaHelper.resolveFile(context, rawPath);
+        if (resolved != null) {
+            return resolved.getAbsolutePath();
+        }
+        String fileName = new File(rawPath).getName();
+        File mediaDir = new File(context.getFilesDir(), "media");
+        return new File(mediaDir, fileName).getAbsolutePath();
     }
 
     private static String readEntryAsString(ZipInputStream zis) throws Exception {
