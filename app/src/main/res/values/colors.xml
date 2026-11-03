@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Background & Surfaces -->
+    <color name="bg_midnight">#0B0E14</color>
+    <color name="surface_card">#161B26</color>
+    <color name="surface_elevated">#1F2637</color>
+    <color name="surface_input">#121620</color>
+
+    <!-- Accents -->
+    <color name="indigo_primary">#6366F1</color>
+    <color name="indigo_dark">#4F46E5</color>
+    <color name="violet_accent">#8B5CF6</color>
+    <color name="emerald_success">#10B981</color>
+    <color name="rose_like">#EC4899</color>
+    <color name="red_error">#EF4444</color>
+    <color name="amber_warning">#F59E0B</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#F1F5F9</color>
+    <color name="text_secondary">#94A3B8</color>
+    <color name="text_tertiary">#64748B</color>
+
+    <!-- Chrome & Dividers -->
+    <color name="border_divider">#2E384D</color>
+    <color name="ripple_color">#336366F1</color>
+
+    <!-- Chat Bubbles -->
+    <color name="chat_bubble_out">#3730A3</color>
+    <color name="chat_bubble_in">#1F2637</color>
+
+    <!-- Standard compatibility colors -->
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

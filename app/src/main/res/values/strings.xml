@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">My Persona</string>
+    <string name="tagline">Offline Role-Playing Social Simulator</string>
+
+    <!-- Navigation -->
+    <string name="nav_feed">Feed</string>
+    <string name="nav_messages">Messages</string>
+    <string name="nav_personas">Personas</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Active Persona Switcher -->
+    <string name="no_active_persona">No Active Persona</string>
+    <string name="select_active_persona">Switch Persona</string>
+    <string name="tap_to_switch">Tap to change speaking identity</string>
+    <string name="active_badge">Active</string>
+
+    <!-- Empty States -->
+    <string name="empty_feed_title">No Posts Yet</string>
+    <string name="empty_feed_subtitle">Create personas and publish updates to populate your fictional social timeline.</string>
+    <string name="empty_messages_title">No Conversations</string>
+    <string name="empty_messages_subtitle">Start a direct message conversation between any two of your personas.</string>
+    <string name="empty_personas_title">No Personas Created</string>
+    <string name="empty_personas_subtitle">Bring your fictional universe to life by creating your first character persona.</string>
+
+    <!-- Post Creator -->
+    <string name="create_post">New Post</string>
+    <string name="publish">Publish</string>
+    <string name="post_hint">What is on your character\'s mind?</string>
+    <string name="posting_as">Posting as</string>
+    <string name="suggest_idea">Roleplay Prompt</string>
+    <string name="add_image">Attach Image</string>
+
+    <!-- Comments & Likes -->
+    <string name="comments_title">Comments</string>
+    <string name="add_comment_hint">Reply as active persona…</string>
+    <string name="send">Send</string>
+    <string name="likes_count">%d Likes</string>
+    <string name="comments_count">%d Comments</string>
+
+    <!-- Chat -->
+    <string name="type_a_message">Type a message…</string>
+    <string name="switch_speaker">Switch Speaker</string>
+    <string name="speaking_as">Speaking as: %s</string>
+    <string name="new_conversation">New Conversation</string>
+
+    <!-- Persona Editor -->
+    <string name="create_persona">Create Persona</string>
+    <string name="edit_persona">Edit Persona</string>
+    <string name="save_persona">Save Persona</string>
+    <string name="display_name">Display Name</string>
+    <string name="username">Handle (@username)</string>
+    <string name="bio">Bio / Headline</string>
+    <string name="personality_traits">Personality Traits</string>
+    <string name="speaking_style">Speaking Style</string>
+    <string name="roleplay_instructions">Roleplay Instructions</string>
+    <string name="background_story">Background Lore</string>
+
+    <!-- Settings & Backup -->
+    <string name="settings_title">Settings &amp; Data Management</string>
+    <string name="backup_restore_title">Legacy ZIP Backup &amp; Restore</string>
+    <string name="backup_desc">Archives include manifest.json, data.json, and internal media images (compatible with My Persona &amp; PersonaNet).</string>
+    <string name="export_backup">Export Full Backup (.zip)</string>
+    <string name="import_backup">Restore Backup (.zip)</string>
+    <string name="restore_mode_full">Full Wipe &amp; Restore</string>
+    <string name="restore_mode_merge">Merge Import (Preserve existing)</string>
+    <string name="backup_summary">Last action: %s</string>
+    <string name="about_title">About My Persona</string>
+    <string name="about_desc">100% offline, privacy-focused social simulator. All data and fictional characters remain securely on your device.</string>
+
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
+</resources>

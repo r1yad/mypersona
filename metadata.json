@@ -1,0 +1,6 @@
+{
+  "name": "My Persona",
+  "description": "Offline role-playing social media simulator to create multiple personas, publish feeds, chat, and manage character networks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
