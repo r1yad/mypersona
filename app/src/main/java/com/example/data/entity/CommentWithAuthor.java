@@ -8,6 +8,8 @@ public class CommentWithAuthor {
     private PersonaEntity author;
     private int likeCount;
     private boolean isLikedByActivePersona;
+    private int depthLevel = 0;
+    private String replyToAuthorName = null;
 
     public CommentWithAuthor(@NonNull CommentEntity comment,
                              @Nullable PersonaEntity author,
@@ -17,6 +19,23 @@ public class CommentWithAuthor {
         this.author = author;
         this.likeCount = likeCount;
         this.isLikedByActivePersona = isLikedByActivePersona;
+    }
+
+    public int getDepthLevel() {
+        return depthLevel;
+    }
+
+    public void setDepthLevel(int depthLevel) {
+        this.depthLevel = depthLevel;
+    }
+
+    @Nullable
+    public String getReplyToAuthorName() {
+        return replyToAuthorName;
+    }
+
+    public void setReplyToAuthorName(@Nullable String replyToAuthorName) {
+        this.replyToAuthorName = replyToAuthorName;
     }
 
     @NonNull

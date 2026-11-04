@@ -67,6 +67,39 @@
             app:cornerRadius="12dp" />
     </LinearLayout>
 
+    <!-- Floating Go to Top Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_go_to_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/surface_card"
+        android:contentDescription="Go to Top"
+        android:src="@drawable/ic_arrow_up"
+        android:visibility="gone"
+        app:elevation="4dp"
+        app:fabCustomSize="42dp"
+        app:layout_constraintBottom_toTopOf="@id/fab_create_post"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/indigo_primary" />
+
+    <!-- Feed Refresh Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_refresh_feed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="12dp"
+        android:backgroundTint="@color/surface_card"
+        android:contentDescription="Refresh Feed"
+        android:src="@drawable/ic_refresh"
+        app:elevation="4dp"
+        app:fabCustomSize="42dp"
+        app:layout_constraintBottom_toTopOf="@id/fab_go_to_top"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/text_secondary" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_create_post"
         android:layout_width="wrap_content"

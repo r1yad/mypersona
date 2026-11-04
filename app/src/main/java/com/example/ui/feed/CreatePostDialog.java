@@ -35,7 +35,7 @@ public class CreatePostDialog extends DialogFragment {
     private DialogCreatePostBinding binding;
     private FeedViewModel viewModel;
     private PersonaEntity activeAuthor;
-    private String selectedMediaPath = null;
+    private PostThumbnailsAdapter thumbnailsAdapter;
 
     private final ActivityResultLauncher<String> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -66,6 +66,12 @@ public class CreatePostDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
+
+        thumbnailsAdapter = new PostThumbnailsAdapter((position, path) -> {
+            thumbnailsAdapter.removeAt(position);
+            updateThumbnailsUi();
+        });
+        binding.recyclerPostThumbnails.setAdapter(thumbnailsAdapter);
 
         viewModel.getActivePersona().observe(getViewLifecycleOwner(), persona -> {
             activeAuthor = persona;
@@ -98,13 +104,13 @@ public class CreatePostDialog extends DialogFragment {
             }
         });
 
-        // Attach Image
-        binding.btnAttachImage.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
-
-        // Remove Attached Image
-        binding.btnRemoveImage.setOnClickListener(v -> {
-            selectedMediaPath = null;
-            binding.layoutMediaPreview.setVisibility(View.GONE);
+        // Attach Image (up to 5)
+        binding.btnAttachImage.setOnClickListener(v -> {
+            if (thumbnailsAdapter.getItemCount() >= 5) {
+                Toast.makeText(requireContext(), "You can attach up to 5 photos", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            imagePickerLauncher.launch("image/*");
         });
 
         binding.btnCloseDialog.setOnClickListener(v -> dismiss());
@@ -123,23 +129,30 @@ public class CreatePostDialog extends DialogFragment {
             }
 
             binding.btnPublishPost.setEnabled(false);
-            viewModel.createPost(activeAuthor.getId(), content, selectedMediaPath, () -> {
+            java.util.List<String> mediaPaths = thumbnailsAdapter.getPaths();
+            viewModel.createPostWithMedia(activeAuthor.getId(), content, mediaPaths, () -> {
                 dismiss();
                 Toast.makeText(requireContext(), "Post published!", Toast.LENGTH_SHORT).show();
             });
         });
     }
 
+    private void updateThumbnailsUi() {
+        int count = thumbnailsAdapter.getItemCount();
+        if (count > 0) {
+            binding.layoutMediaThumbnails.setVisibility(View.VISIBLE);
+            binding.textPhotosCounter.setText(count + "/5 photos");
+        } else {
+            binding.layoutMediaThumbnails.setVisibility(View.GONE);
+        }
+    }
+
     private void saveImageToInternalStorage(Uri uri) {
         try {
             String path = com.example.util.MediaHelper.compressAndSaveWebP(requireContext(), uri, "post");
             if (path != null) {
-                selectedMediaPath = path;
-                Bitmap bm = com.example.util.MediaHelper.loadBitmap(requireContext(), path, 800);
-                if (bm != null) {
-                    binding.imagePreview.setImageBitmap(bm);
-                    binding.layoutMediaPreview.setVisibility(View.VISIBLE);
-                }
+                thumbnailsAdapter.addPath(path);
+                updateThumbnailsUi();
             } else {
                 Toast.makeText(requireContext(), "Failed to compress image", Toast.LENGTH_SHORT).show();
             }

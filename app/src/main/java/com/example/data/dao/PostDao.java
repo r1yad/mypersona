@@ -26,6 +26,9 @@ public interface PostDao {
     @Update
     void updatePost(PostEntity post);
 
+    @Query("UPDATE posts SET textContent = :content, updatedAt = :updatedAt WHERE id = :postId")
+    void updatePostContent(String postId, String content, long updatedAt);
+
     @Delete
     void deletePost(PostEntity post);
 

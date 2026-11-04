@@ -81,12 +81,13 @@
                 android:clickable="true"
                 android:focusable="true">
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/image_detail_avatar"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:contentDescription="@string/app_name"
-                    android:src="@drawable/ic_person_placeholder" />
+                    android:src="@drawable/ic_person_placeholder"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -110,6 +111,29 @@
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
                 </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/btn_detail_edit"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit Post"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_edit"
+                    android:visibility="gone"
+                    app:tint="@color/text_tertiary" />
+
+                <ImageView
+                    android:id="@+id/btn_detail_delete"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="4dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/delete"
+                    android:padding="6dp"
+                    android:src="@drawable/ic_close_or_delete"
+                    android:visibility="gone"
+                    app:tint="@color/text_tertiary" />
             </LinearLayout>
 
             <TextView
@@ -121,16 +145,108 @@
                 android:textSize="15sp"
                 android:lineSpacingExtra="3dp" />
 
-            <ImageView
-                android:id="@+id/image_detail_media"
+            <!-- Attached Media Slider Container -->
+            <FrameLayout
+                android:id="@+id/layout_detail_media_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:adjustViewBounds="true"
-                android:maxHeight="520dp"
-                android:contentDescription="@string/app_name"
-                android:scaleType="fitCenter"
-                android:visibility="gone" />
+                android:visibility="gone">
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/view_pager_detail_media"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <!-- Position Counter Badge -->
+                <TextView
+                    android:id="@+id/text_detail_media_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="10dp"
+                    android:background="@drawable/bg_counter_pill"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <!-- Dots Indicator Row -->
+                <LinearLayout
+                    android:id="@+id/layout_detail_media_dots"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|center_horizontal"
+                    android:layout_marginBottom="8dp"
+                    android:background="@drawable/bg_counter_pill"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="4dp"
+                    android:visibility="gone" />
+            </FrameLayout>
+
+            <!-- Actions Row: Likes & Comments count in detail -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/btn_detail_like"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:id="@+id/image_detail_like_icon"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@string/like"
+                        android:src="@drawable/ic_heart_outline"
+                        app:tint="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/text_detail_likes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="0"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="16dp"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="19dp"
+                        android:layout_height="19dp"
+                        android:contentDescription="@string/comment"
+                        android:src="@drawable/ic_comment"
+                        app:tint="@color/text_secondary" />
+
+                    <TextView
+                        android:id="@+id/text_detail_comments"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:text="0"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -141,38 +257,87 @@
         android:layout_height="0dp"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/layout_comment_input"
+        app:layout_constraintBottom_toTopOf="@id/layout_comment_input_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/card_original_post" />
 
-    <!-- Comment Input Bar -->
+    <!-- Comment Input Bar with Replying Banner -->
     <LinearLayout
-        android:id="@+id/layout_comment_input"
+        android:id="@+id/layout_comment_input_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/surface_card"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="8dp"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
-            android:id="@+id/btn_roleplay_reply_prompt"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/suggest_idea"
-            android:padding="8dp"
-            android:src="@drawable/ic_sparkles"
-            app:tint="@color/violet_accent" />
+        <!-- Replying Banner (Visible when user taps Reply on a comment) -->
+        <LinearLayout
+            android:id="@+id/layout_replying_banner"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:background="@color/surface_elevated"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="12dp"
+            android:visibility="gone">
 
-        <EditText
-            android:id="@+id/edit_comment"
-            android:layout_width="0dp"
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Replying"
+                android:src="@drawable/ic_reply"
+                app:tint="@color/indigo_primary" />
+
+            <TextView
+                android:id="@+id/text_replying_banner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Replying to @username"
+                android:textColor="@color/indigo_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/btn_cancel_reply"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cancel"
+                android:padding="4dp"
+                android:src="@drawable/ic_close"
+                app:tint="@color/text_tertiary" />
+        </LinearLayout>
+
+        <!-- Main Input Row -->
+        <LinearLayout
+            android:id="@+id/layout_comment_input"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/btn_roleplay_reply_prompt"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/suggest_idea"
+                android:padding="8dp"
+                android:src="@drawable/ic_sparkles"
+                app:tint="@color/violet_accent" />
+
+            <EditText
+                android:id="@+id/edit_comment"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/bg_input_field"
             android:hint="@string/add_comment_hint"
@@ -192,6 +357,7 @@
             android:padding="8dp"
             android:src="@drawable/ic_send"
             app:tint="@color/indigo_primary" />
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

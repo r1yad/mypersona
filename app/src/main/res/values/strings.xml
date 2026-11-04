@@ -7,7 +7,13 @@
     <string name="nav_feed">Feed</string>
     <string name="nav_messages">Messages</string>
     <string name="nav_personas">Personas</string>
+    <string name="nav_profile">Profile</string>
     <string name="nav_settings">Settings</string>
+
+    <string name="post_org_title">Post Organization</string>
+    <string name="post_org_desc">Configure how timeline posts are ordered</string>
+    <string name="persona_org_title">Persona Organization</string>
+    <string name="persona_org_desc">Configure how character personas are listed</string>
 
     <!-- Active Persona Switcher -->
     <string name="no_active_persona">No Active Persona</string>
@@ -32,6 +38,8 @@
     <string name="add_image">Attach Image</string>
 
     <!-- Comments & Likes -->
+    <string name="like">Like</string>
+    <string name="comment">Comment</string>
     <string name="comments_title">Comments</string>
     <string name="add_comment_hint">Reply as active persona…</string>
     <string name="send">Send</string>

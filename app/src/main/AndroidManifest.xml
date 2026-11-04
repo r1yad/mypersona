@@ -48,6 +48,21 @@
             android:theme="@style/Theme.PersonaNet"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name="com.example.ui.feed.FullscreenImageViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PersonaNet" />
+
+        <activity
+            android:name="com.example.ui.settings.PostOrganizationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PersonaNet" />
+
+        <activity
+            android:name="com.example.ui.settings.PersonaOrganizationActivity"
+            android:exported="false"
+            android:theme="@style/Theme.PersonaNet" />
+
     </application>
 
 </manifest>

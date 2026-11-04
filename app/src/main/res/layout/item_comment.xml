@@ -1,18 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_comment_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="10dp">
+    android:paddingEnd="16dp"
+    android:paddingVertical="6dp">
 
-    <ImageView
+    <!-- Connecting Vertical Thread Line for Nested Replies -->
+    <View
+        android:id="@+id/view_comment_nest_line"
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:background="@color/border_divider"
+        android:visibility="gone" />
+
+    <!-- Circular Profile Avatar -->
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_comment_avatar"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_person_placeholder" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_person_placeholder"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -23,6 +36,7 @@
         android:orientation="vertical"
         android:padding="12dp">
 
+        <!-- Author row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,6 +93,17 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Replying To Target Banner -->
+        <TextView
+            android:id="@+id/text_comment_reply_target"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textColor="@color/violet_accent"
+            android:textSize="11sp"
+            android:visibility="gone" />
+
+        <!-- Comment Body -->
         <TextView
             android:id="@+id/text_comment_body"
             android:layout_width="match_parent"
@@ -86,6 +111,35 @@
             android:layout_marginTop="6dp"
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
+
+        <!-- Reply Button Action -->
+        <LinearLayout
+            android:id="@+id/btn_comment_reply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="14dp"
+                android:layout_height="14dp"
+                android:contentDescription="Reply"
+                android:src="@drawable/ic_reply"
+                app:tint="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:text="Reply"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

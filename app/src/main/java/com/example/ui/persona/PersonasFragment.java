@@ -45,13 +45,28 @@ public class PersonasFragment extends Fragment implements PersonasAdapter.OnPers
         });
 
         viewModel.getAllPersonas().observe(getViewLifecycleOwner(), personas -> {
-            adapter.submitList(personas);
-            if (personas == null || personas.isEmpty()) {
+            if (personas != null) {
+                java.util.List<PersonaEntity> sorted = new java.util.ArrayList<>(personas);
+                String order = com.example.data.repository.AppRepository.getInstance(requireContext()).getPersonaSortOrder();
+                if (com.example.data.repository.AppRepository.SORT_PERSONAS_NAME_AZ.equals(order)) {
+                    sorted.sort((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
+                } else if (com.example.data.repository.AppRepository.SORT_PERSONAS_NAME_ZA.equals(order)) {
+                    sorted.sort((a, b) -> b.getDisplayName().compareToIgnoreCase(a.getDisplayName()));
+                } else {
+                    sorted.sort((a, b) -> Long.compare(b.getUpdatedAt(), a.getUpdatedAt()));
+                }
+                adapter.submitList(sorted);
+                if (sorted.isEmpty()) {
+                    binding.layoutEmptyPersonas.setVisibility(View.VISIBLE);
+                    binding.recyclerPersonas.setVisibility(View.GONE);
+                } else {
+                    binding.layoutEmptyPersonas.setVisibility(View.GONE);
+                    binding.recyclerPersonas.setVisibility(View.VISIBLE);
+                }
+            } else {
+                adapter.submitList(null);
                 binding.layoutEmptyPersonas.setVisibility(View.VISIBLE);
                 binding.recyclerPersonas.setVisibility(View.GONE);
-            } else {
-                binding.layoutEmptyPersonas.setVisibility(View.GONE);
-                binding.recyclerPersonas.setVisibility(View.VISIBLE);
             }
         });
 

@@ -224,6 +224,13 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
     }
 
     @Override
+    public void onEditClicked(PostWithDetails post) {
+        com.example.ui.feed.EditPostDialog dialog = com.example.ui.feed.EditPostDialog.newInstance(post);
+        dialog.setOnPostUpdatedCallback(this::loadAuthorPosts);
+        dialog.show(getSupportFragmentManager(), com.example.ui.feed.EditPostDialog.TAG);
+    }
+
+    @Override
     public void onDeleteClicked(PostWithDetails post) {
         new AlertDialog.Builder(this)
                 .setTitle("Delete Post")

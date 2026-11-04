@@ -1,29 +1,39 @@
 package com.example.ui.feed;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.R;
 import com.example.data.entity.PersonaEntity;
+import com.example.data.entity.PostMediaEntity;
 import com.example.data.entity.PostWithDetails;
 import com.example.databinding.ItemPostCardBinding;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostViewHolder> {
 
     public interface OnPostClickListener {
         void onPostClicked(PostWithDetails post);
         void onLikeClicked(PostWithDetails post);
+        void onEditClicked(PostWithDetails post);
         void onDeleteClicked(PostWithDetails post);
         void onAuthorClicked(PersonaEntity author);
     }
@@ -40,7 +50,9 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
 
             @Override
             public boolean areContentsTheSame(@NonNull PostWithDetails oldItem, @NonNull PostWithDetails newItem) {
-                return oldItem.getPost().getUpdatedAt() == newItem.getPost().getUpdatedAt() &&
+                boolean sameMedia = oldItem.getMediaList().size() == newItem.getMediaList().size();
+                return sameMedia &&
+                        oldItem.getPost().getUpdatedAt() == newItem.getPost().getUpdatedAt() &&
                         oldItem.getLikeCount() == newItem.getLikeCount() &&
                         oldItem.getCommentCount() == newItem.getCommentCount() &&
                         oldItem.isLikedByActivePersona() == newItem.isLikedByActivePersona();
@@ -79,6 +91,7 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
         }
 
         public void bind(PostWithDetails item) {
+            Context context = binding.getRoot().getContext();
             PersonaEntity author = item.getAuthor();
             if (author != null) {
                 binding.textPostAuthor.setText(author.getDisplayName());
@@ -90,7 +103,7 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
                 binding.textPostHandleTime.setText("@" + author.getUsername() + " • " + timeSpan);
 
                 if (author.getAvatarPath() != null) {
-                    Bitmap bitmap = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), author.getAvatarPath(), 120);
+                    Bitmap bitmap = com.example.util.MediaHelper.loadBitmap(context, author.getAvatarPath(), 120);
                     if (bitmap != null) {
                         binding.imagePostAvatar.setImageBitmap(bitmap);
                     } else {
@@ -111,33 +124,60 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
 
             if (item.isLikedByActivePersona()) {
                 binding.imagePostLikeIcon.setImageResource(R.drawable.ic_heart_filled);
-                binding.imagePostLikeIcon.setColorFilter(binding.getRoot().getContext().getColor(R.color.rose_like));
-                binding.textPostLikes.setTextColor(binding.getRoot().getContext().getColor(R.color.rose_like));
+                binding.imagePostLikeIcon.setColorFilter(ContextCompat.getColor(context, R.color.rose_like));
+                binding.textPostLikes.setTextColor(ContextCompat.getColor(context, R.color.rose_like));
             } else {
                 binding.imagePostLikeIcon.setImageResource(R.drawable.ic_heart_outline);
-                binding.imagePostLikeIcon.setColorFilter(binding.getRoot().getContext().getColor(R.color.text_secondary));
-                binding.textPostLikes.setTextColor(binding.getRoot().getContext().getColor(R.color.text_secondary));
+                binding.imagePostLikeIcon.setColorFilter(ContextCompat.getColor(context, R.color.text_secondary));
+                binding.textPostLikes.setTextColor(ContextCompat.getColor(context, R.color.text_secondary));
             }
 
-            // Attached Media Preview
-            if (!item.getMediaList().isEmpty()) {
-                String mediaPath = item.getMediaList().get(0).getMediaPath();
-                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), mediaPath, 1080);
-                if (bm != null) {
-                    binding.imagePostMedia.setImageBitmap(bm);
-                    binding.imagePostMedia.setVisibility(View.VISIBLE);
+            // Attached Media Slider (ViewPager2)
+            List<PostMediaEntity> mediaList = item.getMediaList();
+            if (mediaList != null && !mediaList.isEmpty()) {
+                binding.layoutPostMediaContainer.setVisibility(View.VISIBLE);
+                List<String> paths = new ArrayList<>();
+                for (PostMediaEntity m : mediaList) {
+                    paths.add(m.getMediaPath());
+                }
+
+                PostImagesSliderAdapter sliderAdapter = new PostImagesSliderAdapter(paths, (clickedPos, allImages) -> {
+                    FullscreenImageViewerActivity.start(context, allImages, clickedPos);
+                });
+                binding.viewPagerPostMedia.setAdapter(sliderAdapter);
+
+                int totalCount = paths.size();
+                if (totalCount > 1) {
+                    binding.textMediaCounter.setVisibility(View.VISIBLE);
+                    binding.textMediaCounter.setText("1/" + totalCount);
+                    binding.layoutMediaDots.setVisibility(View.VISIBLE);
+                    setupDots(binding.layoutMediaDots, totalCount, 0);
+
+                    binding.viewPagerPostMedia.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                        @Override
+                        public void onPageSelected(int position) {
+                            super.onPageSelected(position);
+                            binding.textMediaCounter.setText((position + 1) + "/" + totalCount);
+                            updateDots(binding.layoutMediaDots, position);
+                        }
+                    });
                 } else {
-                    binding.imagePostMedia.setVisibility(View.GONE);
+                    binding.textMediaCounter.setVisibility(View.GONE);
+                    binding.layoutMediaDots.setVisibility(View.GONE);
                 }
             } else {
-                binding.imagePostMedia.setVisibility(View.GONE);
+                binding.layoutPostMediaContainer.setVisibility(View.GONE);
             }
 
-            // Delete button visible if author matches active persona
-            if (author != null && author.getId().equals(activePersonaId)) {
+            // Edit & Delete button visible if author matches active persona
+            boolean isOwner = author != null && author.getId().equals(activePersonaId);
+            if (isOwner) {
+                binding.btnPostEdit.setVisibility(View.VISIBLE);
+                binding.btnPostEdit.setOnClickListener(v -> listener.onEditClicked(item));
                 binding.btnPostDelete.setVisibility(View.VISIBLE);
                 binding.btnPostDelete.setOnClickListener(v -> listener.onDeleteClicked(item));
             } else {
+                binding.btnPostEdit.setVisibility(View.GONE);
                 binding.btnPostDelete.setVisibility(View.GONE);
             }
 
@@ -148,8 +188,50 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
             }
 
             binding.cardPost.setOnClickListener(v -> listener.onPostClicked(item));
-            binding.btnPostLike.setOnClickListener(v -> listener.onLikeClicked(item));
+
+            // Reaction button with icon-only bounce animation
+            binding.btnPostLike.setOnClickListener(v -> {
+                animateLikeButton(binding.imagePostLikeIcon);
+                listener.onLikeClicked(item);
+            });
+
             binding.btnPostComment.setOnClickListener(v -> listener.onPostClicked(item));
+        }
+
+        private void animateLikeButton(View iconView) {
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1.0f, 1.4f, 1.0f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1.0f, 1.4f, 1.0f);
+            AnimatorSet set = new AnimatorSet();
+            set.playTogether(scaleX, scaleY);
+            set.setDuration(300);
+            set.setInterpolator(new OvershootInterpolator(2.0f));
+            set.start();
+        }
+
+        private void setupDots(LinearLayout dotsLayout, int count, int selectedPosition) {
+            dotsLayout.removeAllViews();
+            Context ctx = dotsLayout.getContext();
+            int size = (int) (6 * ctx.getResources().getDisplayMetrics().density);
+            int margin = (int) (3 * ctx.getResources().getDisplayMetrics().density);
+
+            for (int i = 0; i < count; i++) {
+                ImageView dot = new ImageView(ctx);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+                lp.setMargins(margin, 0, margin, 0);
+                dot.setLayoutParams(lp);
+                dot.setImageResource(i == selectedPosition ? R.drawable.dot_indicator_active : R.drawable.dot_indicator_inactive);
+                dotsLayout.addView(dot);
+            }
+        }
+
+        private void updateDots(LinearLayout dotsLayout, int selectedPosition) {
+            int childCount = dotsLayout.getChildCount();
+            for (int i = 0; i < childCount; i++) {
+                View child = dotsLayout.getChildAt(i);
+                if (child instanceof ImageView) {
+                    ((ImageView) child).setImageResource(i == selectedPosition ? R.drawable.dot_indicator_active : R.drawable.dot_indicator_inactive);
+                }
+            }
         }
     }
 }

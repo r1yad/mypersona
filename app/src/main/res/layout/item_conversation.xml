@@ -23,22 +23,29 @@
             android:layout_width="48dp"
             android:layout_height="48dp">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_persona_a"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:layout_gravity="top|start"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_person_placeholder" />
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person_placeholder"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
+                app:strokeColor="@color/surface_card"
+                app:strokeWidth="1.5dp" />
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_persona_b"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:layout_gravity="bottom|end"
                 android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
                 android:src="@drawable/ic_person_placeholder"
-                app:tint="@color/violet_accent" />
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
+                app:strokeColor="@color/surface_card"
+                app:strokeWidth="1.5dp" />
         </FrameLayout>
 
         <LinearLayout

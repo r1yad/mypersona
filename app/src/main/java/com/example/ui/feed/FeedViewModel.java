@@ -34,12 +34,32 @@ public class FeedViewModel extends AndroidViewModel {
         return activePersona;
     }
 
+    private final androidx.lifecycle.MutableLiveData<Boolean> postCreatedEvent = new androidx.lifecycle.MutableLiveData<>();
+
+    public LiveData<Boolean> getPostCreatedEvent() {
+        return postCreatedEvent;
+    }
+
     public void refresh() {
         repository.refreshFeed();
     }
 
     public void createPost(String authorPersonaId, String content, @Nullable String mediaPath, Runnable onComplete) {
-        repository.createPost(authorPersonaId, content, mediaPath, onComplete);
+        repository.createPost(authorPersonaId, content, mediaPath, () -> {
+            postCreatedEvent.postValue(true);
+            if (onComplete != null) onComplete.run();
+        });
+    }
+
+    public void createPostWithMedia(String authorPersonaId, String content, @NonNull List<String> mediaPaths, Runnable onComplete) {
+        repository.createPostWithMedia(authorPersonaId, content, mediaPaths, () -> {
+            postCreatedEvent.postValue(true);
+            if (onComplete != null) onComplete.run();
+        });
+    }
+
+    public void updatePost(String postId, String newContent, @NonNull List<String> newMediaPaths, Runnable onComplete) {
+        repository.updatePost(postId, newContent, newMediaPaths, onComplete);
     }
 
     public void toggleLike(String postId) {

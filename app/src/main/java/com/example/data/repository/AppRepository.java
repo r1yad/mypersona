@@ -145,6 +145,35 @@ public class AppRepository {
         });
     }
 
+    public static final String SORT_POSTS_NEWEST = "newest";
+    public static final String SORT_POSTS_OLDEST = "oldest";
+    public static final String SORT_POSTS_MOST_LIKED = "most_liked";
+
+    public static final String SORT_PERSONAS_RECENT = "recent";
+    public static final String SORT_PERSONAS_NAME_AZ = "name_az";
+    public static final String SORT_PERSONAS_NAME_ZA = "name_za";
+    public static final String SORT_PERSONAS_MOST_POSTS = "most_posts";
+
+    private static final String KEY_SORT_POSTS = "sort_posts_order";
+    private static final String KEY_SORT_PERSONAS = "sort_personas_order";
+
+    public String getPostSortOrder() {
+        return preferences.getString(KEY_SORT_POSTS, SORT_POSTS_NEWEST);
+    }
+
+    public void setPostSortOrder(String order) {
+        preferences.edit().putString(KEY_SORT_POSTS, order).apply();
+        refreshFeed();
+    }
+
+    public String getPersonaSortOrder() {
+        return preferences.getString(KEY_SORT_PERSONAS, SORT_PERSONAS_RECENT);
+    }
+
+    public void setPersonaSortOrder(String order) {
+        preferences.edit().putString(KEY_SORT_PERSONAS, order).apply();
+    }
+
     // --- Feed & Posts ---
 
     public LiveData<List<PostWithDetails>> getFeedPostsLive() {
@@ -168,26 +197,75 @@ public class AppRepository {
                 detailsList.add(item);
             }
 
+            // Apply post sort order
+            String postSort = getPostSortOrder();
+            if (SORT_POSTS_OLDEST.equals(postSort)) {
+                detailsList.sort((a, b) -> Long.compare(a.getPost().getCreatedAt(), b.getPost().getCreatedAt()));
+            } else if (SORT_POSTS_MOST_LIKED.equals(postSort)) {
+                detailsList.sort((a, b) -> Integer.compare(b.getLikeCount(), a.getLikeCount()));
+            } else {
+                // Default: newest first
+                detailsList.sort((a, b) -> Long.compare(b.getPost().getCreatedAt(), a.getPost().getCreatedAt()));
+            }
+
             feedPostsLive.postValue(detailsList);
         });
     }
 
     public void createPost(String authorPersonaId, String textContent, @Nullable String mediaPath, Runnable onComplete) {
+        List<String> paths = new ArrayList<>();
+        if (mediaPath != null && !mediaPath.trim().isEmpty()) {
+            paths.add(mediaPath.trim());
+        }
+        createPostWithMedia(authorPersonaId, textContent, paths, onComplete);
+    }
+
+    public void createPostWithMedia(String authorPersonaId, String textContent, @NonNull List<String> mediaPaths, Runnable onComplete) {
         executor.execute(() -> {
             long now = System.currentTimeMillis();
             String postId = UUID.randomUUID().toString();
             PostEntity post = new PostEntity(postId, authorPersonaId, textContent, now, now);
             database.postDao().insertPost(post);
 
-            if (mediaPath != null && !mediaPath.trim().isEmpty()) {
-                PostMediaEntity media = new PostMediaEntity(
-                        UUID.randomUUID().toString(),
-                        postId,
-                        mediaPath,
-                        "image/jpeg",
-                        0
-                );
-                database.postDao().insertMedia(media);
+            int order = 0;
+            for (String path : mediaPaths) {
+                if (path != null && !path.trim().isEmpty()) {
+                    PostMediaEntity media = new PostMediaEntity(
+                            UUID.randomUUID().toString(),
+                            postId,
+                            path.trim(),
+                            "image/webp",
+                            order++
+                    );
+                    database.postDao().insertMedia(media);
+                }
+            }
+
+            refreshFeed();
+            if (onComplete != null) {
+                mainHandler.post(onComplete);
+            }
+        });
+    }
+
+    public void updatePost(String postId, String newContent, @NonNull List<String> newMediaPaths, Runnable onComplete) {
+        executor.execute(() -> {
+            long now = System.currentTimeMillis();
+            database.postDao().updatePostContent(postId, newContent, now);
+            database.postDao().deleteMediaForPost(postId);
+
+            int order = 0;
+            for (String path : newMediaPaths) {
+                if (path != null && !path.trim().isEmpty()) {
+                    PostMediaEntity media = new PostMediaEntity(
+                            UUID.randomUUID().toString(),
+                            postId,
+                            path.trim(),
+                            "image/webp",
+                            order++
+                    );
+                    database.postDao().insertMedia(media);
+                }
             }
 
             refreshFeed();
@@ -219,6 +297,7 @@ public class AppRepository {
         executor.execute(() -> {
             PostEntity post = database.postDao().getPostByIdSync(postId);
             if (post != null) {
+                database.postDao().deleteMediaForPost(postId);
                 database.postDao().deletePost(post);
             }
             refreshFeed();
@@ -280,19 +359,66 @@ public class AppRepository {
 
     public void loadComments(String postId, Callback<List<CommentWithAuthor>> callback) {
         executor.execute(() -> {
-            List<CommentEntity> comments = database.commentDao().getCommentsForPostSync(postId);
+            List<CommentEntity> rawComments = database.commentDao().getCommentsForPostSync(postId);
             String activeId = preferences.getString(KEY_ACTIVE_PERSONA, "");
-            List<CommentWithAuthor> list = new ArrayList<>();
+            
+            // Map from commentId -> CommentWithAuthor
+            java.util.Map<String, CommentWithAuthor> itemMap = new java.util.HashMap<>();
+            java.util.Map<String, List<CommentWithAuthor>> childrenMap = new java.util.HashMap<>();
+            List<CommentWithAuthor> rootComments = new ArrayList<>();
 
-            for (CommentEntity c : comments) {
+            for (CommentEntity c : rawComments) {
                 PersonaEntity author = database.personaDao().getByIdSync(c.getAuthorPersonaId());
                 int likeCount = database.likeDao().getCommentLikeCount(c.getId());
                 boolean isLiked = !activeId.isEmpty() && database.likeDao().isCommentLikedByPersona(c.getId(), activeId) > 0;
-                list.add(new CommentWithAuthor(c, author, likeCount, isLiked));
+                CommentWithAuthor item = new CommentWithAuthor(c, author, likeCount, isLiked);
+                itemMap.put(c.getId(), item);
+
+                String parentId = c.getParentCommentId();
+                if (parentId != null && !parentId.trim().isEmpty()) {
+                    if (!childrenMap.containsKey(parentId)) {
+                        childrenMap.put(parentId, new ArrayList<>());
+                    }
+                    childrenMap.get(parentId).add(item);
+                } else {
+                    rootComments.add(item);
+                }
             }
 
-            mainHandler.post(() -> callback.onResult(list));
+            // Build flattened list in DFS order with depth levels and reply targets
+            List<CommentWithAuthor> orderedList = new ArrayList<>();
+            for (CommentWithAuthor root : rootComments) {
+                appendCommentAndDescendants(root, 0, null, childrenMap, orderedList);
+            }
+
+            // Fallback: any orphaned comments whose parentId wasn't found
+            for (CommentWithAuthor item : rawComments.stream().map(c -> itemMap.get(c.getId())).collect(java.util.stream.Collectors.toList())) {
+                if (!orderedList.contains(item)) {
+                    appendCommentAndDescendants(item, 0, null, childrenMap, orderedList);
+                }
+            }
+
+            mainHandler.post(() -> callback.onResult(orderedList));
         });
+    }
+
+    private void appendCommentAndDescendants(CommentWithAuthor current,
+                                            int depth,
+                                            @Nullable String parentAuthorName,
+                                            java.util.Map<String, List<CommentWithAuthor>> childrenMap,
+                                            List<CommentWithAuthor> outList) {
+        if (outList.contains(current)) return;
+        current.setDepthLevel(Math.min(depth, 4)); // cap visual depth at 4 for mobile readability
+        current.setReplyToAuthorName(parentAuthorName);
+        outList.add(current);
+
+        String authorName = current.getAuthor() != null ? current.getAuthor().getDisplayName() : "user";
+        List<CommentWithAuthor> children = childrenMap.get(current.getComment().getId());
+        if (children != null) {
+            for (CommentWithAuthor child : children) {
+                appendCommentAndDescendants(child, depth + 1, authorName, childrenMap, outList);
+            }
+        }
     }
 
     public void addComment(String postId, String authorPersonaId, @Nullable String parentCommentId, String textContent, Runnable onComplete) {

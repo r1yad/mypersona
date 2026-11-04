@@ -19,6 +19,10 @@ public class PersonaSwitcherBottomSheet extends BottomSheetDialogFragment {
 
     public static final String TAG = "PersonaSwitcherBottomSheet";
 
+    public static PersonaSwitcherBottomSheet newInstance() {
+        return new PersonaSwitcherBottomSheet();
+    }
+
     private BottomSheetPersonaSwitcherBinding binding;
     private PersonaViewModel viewModel;
     private PersonaSwitcherAdapter adapter;

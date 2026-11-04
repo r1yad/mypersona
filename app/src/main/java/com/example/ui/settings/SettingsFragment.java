@@ -83,6 +83,17 @@ public class SettingsFragment extends Fragment {
             }
         });
 
+        // Content Organization
+        binding.btnSettingPostOrg.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), PostOrganizationActivity.class));
+        });
+
+        binding.btnSettingPersonaOrg.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), PersonaOrganizationActivity.class));
+        });
+
+        updateOrganizationSummaries();
+
         // Export Backup
         binding.btnExportBackup.setOnClickListener(v -> {
             String filename = "MyPersona_Backup_" + (System.currentTimeMillis() / 1000) + ".zip";
@@ -141,12 +152,34 @@ public class SettingsFragment extends Fragment {
         });
     }
 
+    private void updateOrganizationSummaries() {
+        AppRepository repo = AppRepository.getInstance(requireContext());
+        String postOrder = repo.getPostSortOrder();
+        if (AppRepository.SORT_POSTS_OLDEST.equals(postOrder)) {
+            binding.textPostOrgSummary.setText("Oldest posts first");
+        } else if (AppRepository.SORT_POSTS_MOST_LIKED.equals(postOrder)) {
+            binding.textPostOrgSummary.setText("Most liked posts first");
+        } else {
+            binding.textPostOrgSummary.setText("Newest posts first");
+        }
+
+        String personaOrder = repo.getPersonaSortOrder();
+        if (AppRepository.SORT_PERSONAS_NAME_AZ.equals(personaOrder)) {
+            binding.textPersonaOrgSummary.setText("Alphabetical (A to Z)");
+        } else if (AppRepository.SORT_PERSONAS_NAME_ZA.equals(personaOrder)) {
+            binding.textPersonaOrgSummary.setText("Alphabetical (Z to A)");
+        } else {
+            binding.textPersonaOrgSummary.setText("Recently updated first");
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         if (viewModel != null) {
             viewModel.refreshStats();
         }
+        updateOrganizationSummaries();
     }
 
     @Override

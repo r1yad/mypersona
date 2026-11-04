@@ -25,12 +25,13 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_post_avatar"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_person_placeholder" />
+                android:src="@drawable/ic_person_placeholder"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -58,9 +59,21 @@
             </LinearLayout>
 
             <ImageView
+                android:id="@+id/btn_post_edit"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit Post"
+                android:padding="6dp"
+                android:src="@drawable/ic_edit"
+                android:visibility="gone"
+                app:tint="@color/text_tertiary" />
+
+            <ImageView
                 android:id="@+id/btn_post_delete"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
+                android:layout_marginStart="4dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/delete"
                 android:padding="6dp"
@@ -79,17 +92,45 @@
             android:textColor="@color/text_primary"
             android:textSize="15sp" />
 
-        <!-- Attached Media Preview -->
-        <ImageView
-            android:id="@+id/image_post_media"
+        <!-- Attached Media Slider Container -->
+        <FrameLayout
+            android:id="@+id/layout_post_media_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:adjustViewBounds="true"
-            android:maxHeight="520dp"
-            android:contentDescription="@string/app_name"
-            android:scaleType="fitCenter"
-            android:visibility="gone" />
+            android:visibility="gone">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/view_pager_post_media"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <!-- Position Counter Badge -->
+            <TextView
+                android:id="@+id/text_media_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_counter_pill"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- Dots Indicator Row -->
+            <LinearLayout
+                android:id="@+id/layout_media_dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_counter_pill"
+                android:orientation="horizontal"
+                android:paddingHorizontal="6dp"
+                android:paddingVertical="4dp"
+                android:visibility="gone" />
+        </FrameLayout>
 
         <!-- Divider -->
         <View

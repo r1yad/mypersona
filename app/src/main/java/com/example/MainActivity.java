@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private final Fragment feedFragment = new FeedFragment();
     private final Fragment messagesFragment = new MessagesFragment();
     private final Fragment personasFragment = new PersonasFragment();
+    private final Fragment myProfileFragment = new com.example.ui.persona.MyProfileFragment();
     private final Fragment settingsFragment = new SettingsFragment();
     private Fragment activeFragment = feedFragment;
 
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         // Setup fragment container
         getSupportFragmentManager().beginTransaction()
                 .add(R.id.fragment_container, settingsFragment, "settings").hide(settingsFragment)
+                .add(R.id.fragment_container, myProfileFragment, "profile").hide(myProfileFragment)
                 .add(R.id.fragment_container, personasFragment, "personas").hide(personasFragment)
                 .add(R.id.fragment_container, messagesFragment, "messages").hide(messagesFragment)
                 .add(R.id.fragment_container, feedFragment, "feed")
@@ -73,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             } else if (itemId == R.id.nav_personas) {
                 switchFragment(personasFragment);
+                return true;
+            } else if (itemId == R.id.nav_profile) {
+                switchFragment(myProfileFragment);
                 return true;
             } else if (itemId == R.id.nav_settings) {
                 switchFragment(settingsFragment);

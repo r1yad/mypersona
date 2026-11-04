@@ -12,12 +12,14 @@
     android:paddingHorizontal="20dp"
     android:paddingVertical="12dp">
 
-    <ImageView
+    <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_switcher_avatar"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:contentDescription="@string/app_name"
-        android:src="@drawable/ic_person_placeholder" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_person_placeholder"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
 
     <LinearLayout
         android:layout_width="0dp"
