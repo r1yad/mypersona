@@ -149,14 +149,14 @@
             <FrameLayout
                 android:id="@+id/layout_detail_media_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="360dp"
                 android:layout_marginTop="12dp"
                 android:visibility="gone">
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/view_pager_detail_media"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent" />
 
                 <!-- Position Counter Badge -->
                 <TextView
