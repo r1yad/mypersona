@@ -12,16 +12,24 @@ import androidx.room.Update;
 import com.example.data.entity.PostEntity;
 import com.example.data.entity.PostMediaEntity;
 
+import androidx.room.Upsert;
+
 import java.util.List;
 
 @Dao
 public interface PostDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertPost(PostEntity post);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertAllPosts(List<PostEntity> posts);
+
+    @Upsert
+    void upsertPost(PostEntity post);
+
+    @Upsert
+    void upsertAllPosts(List<PostEntity> posts);
 
     @Update
     void updatePost(PostEntity post);

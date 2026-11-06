@@ -40,4 +40,53 @@ public class ExampleUnitTest {
         assertNotNull(reply);
         assertTrue(reply.contains("theory") || reply.contains("oracle") || reply.length() > 5);
     }
+
+    @Test
+    public void testPersonaEntityNullSafeGetters() {
+        PersonaEntity persona = new PersonaEntity(
+                "p-null", null, null, null, null, null, null, null, null, null, 0, 0
+        );
+
+        assertNotNull(persona.getId());
+        assertNotNull(persona.getDisplayName());
+        assertNotNull(persona.getUsername());
+        assertNotNull(persona.getBio());
+        assertNotNull(persona.getPersonalityTraits());
+        assertNotNull(persona.getSpeakingStyle());
+        assertNotNull(persona.getRoleplayInstructions());
+        assertNotNull(persona.getBackgroundStory());
+    }
+
+    @Test
+    public void testPersonaEntityFieldUpdates() {
+        PersonaEntity persona = new PersonaEntity(
+                "persona-123",
+                "Old Name",
+                "old_handle",
+                "Old Bio",
+                "avatar.webp",
+                null,
+                "Old Traits",
+                "Old Style",
+                "Old Instructions",
+                "Old Story",
+                1000L,
+                1000L
+        );
+
+        // Update traits and profile fields
+        persona.setPersonalityTraits("Sharp, witty, mysterious");
+        persona.setSpeakingStyle("Eloquent and dry");
+        persona.setBio("Updated Bio");
+        persona.setUpdatedAt(2000L);
+
+        // ID and creation time remain unchanged
+        assertEquals("persona-123", persona.getId());
+        assertEquals(1000L, persona.getCreatedAt());
+        assertEquals("avatar.webp", persona.getAvatarPath());
+        assertEquals("Sharp, witty, mysterious", persona.getPersonalityTraits());
+        assertEquals("Eloquent and dry", persona.getSpeakingStyle());
+        assertEquals("Updated Bio", persona.getBio());
+        assertEquals(2000L, persona.getUpdatedAt());
+    }
 }

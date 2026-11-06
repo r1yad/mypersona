@@ -119,10 +119,18 @@ public class AppRepository {
 
     public void savePersona(PersonaEntity persona, Runnable onComplete) {
         executor.execute(() -> {
-            database.personaDao().insert(persona);
+            PersonaEntity existing = database.personaDao().getByIdSync(persona.getId());
+            if (existing != null) {
+                database.personaDao().update(persona);
+            } else {
+                database.personaDao().insert(persona);
+            }
             PersonaEntity currentActive = activePersonaLive.getValue();
             if (currentActive == null || currentActive.getId().equals(persona.getId())) {
                 setActivePersona(persona);
+            } else {
+                refreshFeed();
+                refreshConversations();
             }
             if (onComplete != null) {
                 mainHandler.post(onComplete);

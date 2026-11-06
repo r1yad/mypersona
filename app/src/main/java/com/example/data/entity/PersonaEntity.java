@@ -70,7 +70,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getId() {
-        return id;
+        return id != null ? id : "";
     }
 
     public void setId(@NonNull String id) {
@@ -79,7 +79,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getDisplayName() {
-        return displayName;
+        return displayName != null ? displayName : "";
     }
 
     public void setDisplayName(@NonNull String displayName) {
@@ -88,7 +88,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getUsername() {
-        return username;
+        return username != null ? username : "";
     }
 
     public void setUsername(@NonNull String username) {
@@ -97,7 +97,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getBio() {
-        return bio;
+        return bio != null ? bio : "";
     }
 
     public void setBio(@NonNull String bio) {
@@ -124,7 +124,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getPersonalityTraits() {
-        return personalityTraits;
+        return personalityTraits != null ? personalityTraits : "";
     }
 
     public void setPersonalityTraits(@NonNull String personalityTraits) {
@@ -133,7 +133,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getSpeakingStyle() {
-        return speakingStyle;
+        return speakingStyle != null ? speakingStyle : "";
     }
 
     public void setSpeakingStyle(@NonNull String speakingStyle) {
@@ -142,7 +142,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getRoleplayInstructions() {
-        return roleplayInstructions;
+        return roleplayInstructions != null ? roleplayInstructions : "";
     }
 
     public void setRoleplayInstructions(@NonNull String roleplayInstructions) {
@@ -151,7 +151,7 @@ public class PersonaEntity {
 
     @NonNull
     public String getBackgroundStory() {
-        return backgroundStory;
+        return backgroundStory != null ? backgroundStory : "";
     }
 
     public void setBackgroundStory(@NonNull String backgroundStory) {

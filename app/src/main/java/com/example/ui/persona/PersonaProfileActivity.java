@@ -114,12 +114,15 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
     }
 
     private void displayPersonaInfo(PersonaEntity persona) {
-        binding.toolbarProfile.setTitle(persona.getDisplayName());
-        binding.textProfileName.setText(persona.getDisplayName());
-        binding.textProfileUsername.setText("@" + persona.getUsername());
+        String displayName = persona.getDisplayName() != null ? persona.getDisplayName() : "";
+        String username = persona.getUsername() != null ? persona.getUsername() : "";
+        binding.toolbarProfile.setTitle(displayName);
+        binding.textProfileName.setText(displayName);
+        binding.textProfileUsername.setText("@" + username);
 
-        if (!persona.getBio().isEmpty()) {
-            binding.textProfileBio.setText(persona.getBio());
+        String bio = persona.getBio();
+        if (bio != null && !bio.trim().isEmpty()) {
+            binding.textProfileBio.setText(bio.trim());
             binding.textProfileBio.setVisibility(View.VISIBLE);
         } else {
             binding.textProfileBio.setVisibility(View.GONE);
@@ -137,25 +140,29 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
         }
 
         // Traits and style
-        if (!persona.getPersonalityTraits().isEmpty()) {
-            binding.textProfileTraits.setText("✦ Personality: " + persona.getPersonalityTraits());
+        String traits = persona.getPersonalityTraits();
+        if (traits != null && !traits.trim().isEmpty()) {
+            binding.textProfileTraits.setText("✦ Personality: " + traits.trim());
             binding.textProfileTraits.setVisibility(View.VISIBLE);
         } else {
             binding.textProfileTraits.setVisibility(View.GONE);
         }
 
-        if (!persona.getSpeakingStyle().isEmpty()) {
-            binding.textProfileStyle.setText("✦ Speaking Style: " + persona.getSpeakingStyle());
+        String style = persona.getSpeakingStyle();
+        if (style != null && !style.trim().isEmpty()) {
+            binding.textProfileStyle.setText("✦ Speaking Style: " + style.trim());
             binding.textProfileStyle.setVisibility(View.VISIBLE);
         } else {
             binding.textProfileStyle.setVisibility(View.GONE);
         }
 
-        if (!persona.getBackgroundStory().isEmpty()) {
-            binding.textProfileStory.setText(persona.getBackgroundStory());
+        String story = persona.getBackgroundStory();
+        String instructions = persona.getRoleplayInstructions();
+        if (story != null && !story.trim().isEmpty()) {
+            binding.textProfileStory.setText(story.trim());
             binding.textProfileStory.setVisibility(View.VISIBLE);
-        } else if (!persona.getRoleplayInstructions().isEmpty()) {
-            binding.textProfileStory.setText(persona.getRoleplayInstructions());
+        } else if (instructions != null && !instructions.trim().isEmpty()) {
+            binding.textProfileStory.setText(instructions.trim());
             binding.textProfileStory.setVisibility(View.VISIBLE);
         } else {
             binding.textProfileStory.setVisibility(View.GONE);

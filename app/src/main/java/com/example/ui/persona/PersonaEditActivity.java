@@ -32,6 +32,7 @@ public class PersonaEditActivity extends AppCompatActivity {
     private AppRepository repository;
     private PersonaEntity existingPersona;
     private String selectedAvatarPath = null;
+    private String editingPersonaId = null;
 
     private final ActivityResultLauncher<String> avatarPickerLauncher =
             registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
@@ -48,12 +49,14 @@ public class PersonaEditActivity extends AppCompatActivity {
 
         repository = AppRepository.getInstance(this);
 
-        String personaId = getIntent().getStringExtra(EXTRA_PERSONA_ID);
-        if (personaId != null && !personaId.isEmpty()) {
+        editingPersonaId = getIntent().getStringExtra(EXTRA_PERSONA_ID);
+        if (editingPersonaId != null && !editingPersonaId.trim().isEmpty()) {
+            editingPersonaId = editingPersonaId.trim();
             binding.textEditTitle.setText("Edit Persona");
             binding.btnDeletePersona.setVisibility(View.VISIBLE);
-            loadExistingPersona(personaId);
+            loadExistingPersona(editingPersonaId);
         } else {
+            editingPersonaId = null;
             binding.textEditTitle.setText("Create Persona");
             binding.btnDeletePersona.setVisibility(View.GONE);
         }
@@ -75,11 +78,13 @@ public class PersonaEditActivity extends AppCompatActivity {
     }
 
     private void loadExistingPersona(String personaId) {
+        binding.btnSavePersona.setEnabled(false);
         repository.getExecutor().execute(() -> {
             existingPersona = repository.getDatabase().personaDao().getByIdSync(personaId);
             if (existingPersona != null) {
                 selectedAvatarPath = existingPersona.getAvatarPath();
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     binding.editDisplayName.setText(existingPersona.getDisplayName());
                     binding.editUsername.setText(existingPersona.getUsername());
                     binding.editBio.setText(existingPersona.getBio());
@@ -95,6 +100,12 @@ public class PersonaEditActivity extends AppCompatActivity {
                             binding.textAvatarHint.setText("Tap to change profile picture");
                         }
                     }
+                    binding.btnSavePersona.setEnabled(true);
+                });
+            } else {
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+                    binding.btnSavePersona.setEnabled(true);
                 });
             }
         });
@@ -119,7 +130,7 @@ public class PersonaEditActivity extends AppCompatActivity {
     }
 
     private void setupPresetChips() {
-        binding.chipPresetMystic.setOnClickListener(v -> applyPreset(
+        binding.chipPresetMystic.setOnClickListener(v -> promptApplyPreset(
                 "Lyra the Arcane",
                 "lyra_arcana",
                 "Keeper of the celestial astrological archives",
@@ -129,7 +140,7 @@ public class PersonaEditActivity extends AppCompatActivity {
                 "Apprenticed in the Moonfall Citadel before the Great Rift scattered the arcane scrolls across the realm."
         ));
 
-        binding.chipPresetSarcastic.setOnClickListener(v -> applyPreset(
+        binding.chipPresetSarcastic.setOnClickListener(v -> promptApplyPreset(
                 "Miles Vance",
                 "miles_vance",
                 "Cynical detective surviving on espresso and dry remarks",
@@ -139,7 +150,7 @@ public class PersonaEditActivity extends AppCompatActivity {
                 "Former city inspector turned private investigator who has seen every scam in the book twice."
         ));
 
-        binding.chipPresetRoyal.setOnClickListener(v -> applyPreset(
+        binding.chipPresetRoyal.setOnClickListener(v -> promptApplyPreset(
                 "Crown Prince Aaron",
                 "prince_aaron",
                 "Sovereign heir to the High Sun Court",
@@ -149,7 +160,7 @@ public class PersonaEditActivity extends AppCompatActivity {
                 "Trained from youth in classical diplomacy, swordsmanship, and imperial law during the Century Peace."
         ));
 
-        binding.chipPresetCyberpunk.setOnClickListener(v -> applyPreset(
+        binding.chipPresetCyberpunk.setOnClickListener(v -> promptApplyPreset(
                 "Echo-7",
                 "echo_seven",
                 "Rogue netrunner and underground data siphon",
@@ -159,7 +170,7 @@ public class PersonaEditActivity extends AppCompatActivity {
                 "Constructed from salvage implants in the neon underbelly of Sector 9 after escaping a megacorp research facility."
         ));
 
-        binding.chipPresetWhimsical.setOnClickListener(v -> applyPreset(
+        binding.chipPresetWhimsical.setOnClickListener(v -> promptApplyPreset(
                 "Pippin Flutter",
                 "pippin_fae",
                 "Curious garden sprite and inventor of peculiar teapots",
@@ -170,14 +181,29 @@ public class PersonaEditActivity extends AppCompatActivity {
         ));
     }
 
+    private void promptApplyPreset(String name, String username, String bio, String traits, String style, String instructions, String story) {
+        if (editingPersonaId != null && !editingPersonaId.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Apply Preset Archetype")
+                    .setMessage("This will update personality traits, voice style, roleplay instructions, and background story. Your display name and handle will remain unchanged.")
+                    .setPositiveButton("Apply", (dialog, which) -> {
+                        applyPreset(null, null, null, traits, style, instructions, story);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        } else {
+            applyPreset(name, username, bio, traits, style, instructions, story);
+        }
+    }
+
     private void applyPreset(String name, String username, String bio, String traits, String style, String instructions, String story) {
-        if (binding.editDisplayName.getText().toString().trim().isEmpty()) {
+        if (name != null && binding.editDisplayName.getText().toString().trim().isEmpty()) {
             binding.editDisplayName.setText(name);
         }
-        if (binding.editUsername.getText().toString().trim().isEmpty()) {
+        if (username != null && binding.editUsername.getText().toString().trim().isEmpty()) {
             binding.editUsername.setText(username);
         }
-        if (binding.editBio.getText().toString().trim().isEmpty()) {
+        if (bio != null && binding.editBio.getText().toString().trim().isEmpty()) {
             binding.editBio.setText(bio);
         }
         binding.editPersonalityTraits.setText(traits);
@@ -213,9 +239,20 @@ public class PersonaEditActivity extends AppCompatActivity {
         }
 
         long now = System.currentTimeMillis();
-        String id = existingPersona != null ? existingPersona.getId() : UUID.randomUUID().toString();
+        String id;
+        if (editingPersonaId != null && !editingPersonaId.isEmpty()) {
+            id = editingPersonaId;
+        } else if (existingPersona != null) {
+            id = existingPersona.getId();
+        } else {
+            id = UUID.randomUUID().toString();
+        }
+
         long createdAt = existingPersona != null ? existingPersona.getCreatedAt() : now;
         String coverPath = existingPersona != null ? existingPersona.getCoverPath() : null;
+        if (selectedAvatarPath == null && existingPersona != null) {
+            selectedAvatarPath = existingPersona.getAvatarPath();
+        }
 
         PersonaEntity persona = new PersonaEntity(
                 id,

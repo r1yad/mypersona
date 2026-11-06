@@ -10,16 +10,24 @@ import androidx.room.Update;
 
 import com.example.data.entity.CommentEntity;
 
+import androidx.room.Upsert;
+
 import java.util.List;
 
 @Dao
 public interface CommentDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(CommentEntity comment);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertAll(List<CommentEntity> comments);
+
+    @Upsert
+    void upsert(CommentEntity comment);
+
+    @Upsert
+    void upsertAll(List<CommentEntity> comments);
 
     @Update
     void update(CommentEntity comment);

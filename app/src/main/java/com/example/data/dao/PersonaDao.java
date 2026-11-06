@@ -8,6 +8,8 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import androidx.room.Upsert;
+
 import com.example.data.entity.PersonaEntity;
 
 import java.util.List;
@@ -15,11 +17,17 @@ import java.util.List;
 @Dao
 public interface PersonaDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(PersonaEntity persona);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertAll(List<PersonaEntity> personas);
+
+    @Upsert
+    void upsert(PersonaEntity persona);
+
+    @Upsert
+    void upsertAll(List<PersonaEntity> personas);
 
     @Update
     void update(PersonaEntity persona);

@@ -10,16 +10,24 @@ import androidx.room.Update;
 
 import com.example.data.entity.MessageEntity;
 
+import androidx.room.Upsert;
+
 import java.util.List;
 
 @Dao
 public interface MessageDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(MessageEntity message);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insertAll(List<MessageEntity> messages);
+
+    @Upsert
+    void upsert(MessageEntity message);
+
+    @Upsert
+    void upsertAll(List<MessageEntity> messages);
 
     @Update
     void update(MessageEntity message);
