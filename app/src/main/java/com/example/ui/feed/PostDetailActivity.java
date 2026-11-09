@@ -74,6 +74,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         binding.recyclerComments.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerComments.setAdapter(commentsAdapter);
+        binding.recyclerComments.setNestedScrollingEnabled(false);
 
         binding.btnBack.setOnClickListener(v -> finish());
 
@@ -197,6 +198,12 @@ public class PostDetailActivity extends AppCompatActivity {
             repository.togglePostLike(postId, this::loadPostAndComments);
         });
 
+        // Comment button action: scroll down directly to comments section and focus input
+        binding.btnDetailComments.setOnClickListener(v -> {
+            binding.scrollPostDetail.smoothScrollTo(0, binding.layoutCommentsHeader.getTop());
+            binding.editComment.requestFocus();
+        });
+
         // Attached Media Slider (ViewPager2)
         List<PostMediaEntity> mediaList = item.getMediaList();
         if (mediaList != null && !mediaList.isEmpty()) {
@@ -206,10 +213,14 @@ public class PostDetailActivity extends AppCompatActivity {
                 paths.add(m.getMediaPath());
             }
 
+            int currentPos = binding.viewPagerDetailMedia.getCurrentItem();
             PostImagesSliderAdapter adapter = new PostImagesSliderAdapter(paths, (clickedPos, allImages) -> {
                 FullscreenImageViewerActivity.start(this, allImages, clickedPos);
             });
             binding.viewPagerDetailMedia.setAdapter(adapter);
+            if (currentPos >= 0 && currentPos < paths.size()) {
+                binding.viewPagerDetailMedia.setCurrentItem(currentPos, false);
+            }
 
             int total = paths.size();
             if (total > 1) {
@@ -308,7 +319,20 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void loadCommentsList() {
-        repository.loadComments(postId, list -> commentsAdapter.submitList(list));
+        repository.loadComments(postId, list -> {
+            commentsAdapter.submitList(list);
+            if (binding == null) return;
+            int count = list != null ? list.size() : 0;
+            binding.textDetailComments.setText(String.valueOf(count));
+            binding.textCommentsHeaderCount.setText(count + (count == 1 ? " comment" : " comments"));
+            if (count == 0) {
+                binding.layoutEmptyComments.setVisibility(View.VISIBLE);
+                binding.recyclerComments.setVisibility(View.GONE);
+            } else {
+                binding.layoutEmptyComments.setVisibility(View.GONE);
+                binding.recyclerComments.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void onCommentLike(CommentWithAuthor comment) {
@@ -338,6 +362,7 @@ public class PostDetailActivity extends AppCompatActivity {
             binding.btnSendComment.setEnabled(true);
             cancelReply();
             loadCommentsList();
+            binding.scrollPostDetail.post(() -> binding.scrollPostDetail.fullScroll(View.FOCUS_DOWN));
         });
     }
 }

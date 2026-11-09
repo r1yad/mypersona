@@ -23,6 +23,7 @@ import com.example.data.entity.PostLikeEntity;
 import com.example.data.entity.PostMediaEntity;
 import com.example.data.entity.PostWithDetails;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -33,10 +34,17 @@ public class AppRepository {
 
     private static final String PREFS_NAME = "personanet_prefs";
     private static final String KEY_ACTIVE_PERSONA = "active_persona_id";
+    public static final String KEY_DEBUG_MODE = "key_debug_mode_active";
+    public static final String KEY_CUSTOM_POST_ORDER = "key_custom_post_order_ids";
+    public static final String SORT_POSTS_CUSTOM = "custom";
 
     private static volatile AppRepository INSTANCE;
 
-    private final AppDatabase database;
+    private final AppDatabase prodDatabase;
+    private final AppDatabase debugDatabase;
+    private AppDatabase database;
+    private boolean isDebugMode;
+
     private final SharedPreferences preferences;
     private final ExecutorService executor;
     private final Handler mainHandler;
@@ -44,13 +52,19 @@ public class AppRepository {
     private final MutableLiveData<PersonaEntity> activePersonaLive = new MutableLiveData<>();
     private final MutableLiveData<List<PostWithDetails>> feedPostsLive = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<ConversationWithDetails>> conversationsLive = new MutableLiveData<>(new ArrayList<>());
+    private final androidx.lifecycle.MediatorLiveData<List<PersonaEntity>> personasLive = new androidx.lifecycle.MediatorLiveData<>();
+    private LiveData<List<PersonaEntity>> currentPersonasSource;
 
     private AppRepository(Context context) {
-        this.database = AppDatabase.getInstance(context);
+        this.prodDatabase = AppDatabase.getInstance(context);
+        this.debugDatabase = AppDatabase.getDebugInstance(context);
         this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        this.isDebugMode = preferences.getBoolean(KEY_DEBUG_MODE, false);
+        this.database = isDebugMode ? debugDatabase : prodDatabase;
         this.executor = Executors.newFixedThreadPool(4);
         this.mainHandler = new Handler(Looper.getMainLooper());
 
+        setupPersonasLiveSource();
         loadActivePersona();
     }
 
@@ -65,8 +79,46 @@ public class AppRepository {
         return INSTANCE;
     }
 
+    public boolean isDebugModeEnabled() {
+        return isDebugMode;
+    }
+
+    public void setDebugModeEnabled(boolean enabled) {
+        if (this.isDebugMode == enabled) return;
+        this.isDebugMode = enabled;
+        preferences.edit().putBoolean(KEY_DEBUG_MODE, enabled).apply();
+        this.database = enabled ? debugDatabase : prodDatabase;
+
+        mainHandler.post(this::setupPersonasLiveSource);
+        loadActivePersona();
+        refreshFeed();
+        refreshConversations();
+    }
+
+    public void clearAllDebugData(Runnable onComplete) {
+        executor.execute(() -> {
+            debugDatabase.clearAllTables();
+            if (isDebugMode) {
+                loadActivePersona();
+                refreshFeed();
+                refreshConversations();
+            }
+            if (onComplete != null) {
+                mainHandler.post(onComplete);
+            }
+        });
+    }
+
     public AppDatabase getDatabase() {
         return database;
+    }
+
+    public AppDatabase getProdDatabase() {
+        return prodDatabase;
+    }
+
+    public AppDatabase getDebugDatabase() {
+        return debugDatabase;
     }
 
     public ExecutorService getExecutor() {
@@ -113,8 +165,16 @@ public class AppRepository {
 
     // --- Personas ---
 
+    private void setupPersonasLiveSource() {
+        if (currentPersonasSource != null) {
+            personasLive.removeSource(currentPersonasSource);
+        }
+        currentPersonasSource = database.personaDao().getAllPersonasLive();
+        personasLive.addSource(currentPersonasSource, personasLive::setValue);
+    }
+
     public LiveData<List<PersonaEntity>> getAllPersonasLive() {
-        return database.personaDao().getAllPersonasLive();
+        return personasLive;
     }
 
     public void savePersona(PersonaEntity persona, Runnable onComplete) {
@@ -174,6 +234,34 @@ public class AppRepository {
         refreshFeed();
     }
 
+    public List<String> getCustomPostOrder() {
+        String json = preferences.getString(KEY_CUSTOM_POST_ORDER, null);
+        List<String> list = new ArrayList<>();
+        if (json != null && !json.trim().isEmpty()) {
+            try {
+                org.json.JSONArray arr = new org.json.JSONArray(json);
+                for (int i = 0; i < arr.length(); i++) {
+                    list.add(arr.getString(i));
+                }
+            } catch (Exception ignored) {}
+        }
+        return list;
+    }
+
+    public void saveCustomPostOrder(List<String> order) {
+        org.json.JSONArray arr = new org.json.JSONArray();
+        if (order != null) {
+            for (String id : order) {
+                arr.put(id);
+            }
+        }
+        preferences.edit()
+                .putString(KEY_CUSTOM_POST_ORDER, arr.toString())
+                .putString(KEY_SORT_POSTS, SORT_POSTS_CUSTOM)
+                .apply();
+        refreshFeed();
+    }
+
     public String getPersonaSortOrder() {
         return preferences.getString(KEY_SORT_PERSONAS, SORT_PERSONAS_RECENT);
     }
@@ -212,8 +300,32 @@ public class AppRepository {
             } else if (SORT_POSTS_MOST_LIKED.equals(postSort)) {
                 detailsList.sort((a, b) -> Integer.compare(b.getLikeCount(), a.getLikeCount()));
             } else {
-                // Default: newest first
-                detailsList.sort((a, b) -> Long.compare(b.getPost().getCreatedAt(), a.getPost().getCreatedAt()));
+                List<String> customOrder = getCustomPostOrder();
+                if (SORT_POSTS_CUSTOM.equals(postSort) && !customOrder.isEmpty()) {
+                    java.util.Map<String, Integer> positionMap = new java.util.HashMap<>();
+                    for (int i = 0; i < customOrder.size(); i++) {
+                        positionMap.put(customOrder.get(i), i);
+                    }
+                    detailsList.sort((a, b) -> {
+                        String idA = a.getPost().getId();
+                        String idB = b.getPost().getId();
+                        boolean hasA = positionMap.containsKey(idA);
+                        boolean hasB = positionMap.containsKey(idB);
+                        if (!hasA && !hasB) {
+                            return Long.compare(b.getPost().getCreatedAt(), a.getPost().getCreatedAt());
+                        }
+                        if (!hasA) {
+                            return -1; // Newly created posts appear at the top
+                        }
+                        if (!hasB) {
+                            return 1;
+                        }
+                        return Integer.compare(positionMap.get(idA), positionMap.get(idB));
+                    });
+                } else {
+                    // Default: newest first
+                    detailsList.sort((a, b) -> Long.compare(b.getPost().getCreatedAt(), a.getPost().getCreatedAt()));
+                }
             }
 
             feedPostsLive.postValue(detailsList);
@@ -301,12 +413,57 @@ public class AppRepository {
         });
     }
 
+    private boolean isMediaPathUsedElsewhere(String path, String currentPostId) {
+        if (path == null || path.trim().isEmpty()) return true;
+        String fileName = new File(path).getName();
+        List<PostMediaEntity> allMedia = database.postDao().getAllMediaSync();
+        for (PostMediaEntity m : allMedia) {
+            if (!m.getPostId().equals(currentPostId)) {
+                if (m.getMediaPath().equals(path) || m.getMediaPath().endsWith(fileName)) {
+                    return true;
+                }
+            }
+        }
+        List<PersonaEntity> allPersonas = database.personaDao().getAllPersonasSync();
+        for (PersonaEntity p : allPersonas) {
+            if (p.getAvatarPath() != null && (p.getAvatarPath().equals(path) || p.getAvatarPath().endsWith(fileName))) {
+                return true;
+            }
+            if (p.getCoverPath() != null && (p.getCoverPath().equals(path) || p.getCoverPath().endsWith(fileName))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void deletePost(String postId, Runnable onComplete) {
         executor.execute(() -> {
             PostEntity post = database.postDao().getPostByIdSync(postId);
             if (post != null) {
+                List<PostMediaEntity> mediaList = database.postDao().getMediaForPostSync(postId);
                 database.postDao().deleteMediaForPost(postId);
                 database.postDao().deletePost(post);
+
+                if (mediaList != null) {
+                    for (PostMediaEntity m : mediaList) {
+                        if (!isMediaPathUsedElsewhere(m.getMediaPath(), postId)) {
+                            File f = new File(m.getMediaPath());
+                            if (f.exists()) {
+                                f.delete();
+                            }
+                        }
+                    }
+                }
+
+                // Remove from custom post order
+                List<String> customOrder = getCustomPostOrder();
+                if (customOrder.remove(postId)) {
+                    org.json.JSONArray arr = new org.json.JSONArray();
+                    for (String id : customOrder) {
+                        arr.put(id);
+                    }
+                    preferences.edit().putString(KEY_CUSTOM_POST_ORDER, arr.toString()).apply();
+                }
             }
             refreshFeed();
             if (onComplete != null) {

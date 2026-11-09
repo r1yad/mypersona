@@ -92,6 +92,10 @@ public class SettingsFragment extends Fragment {
             startActivity(new Intent(requireContext(), PersonaOrganizationActivity.class));
         });
 
+        binding.btnSettingDebugMode.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), DebugModeActivity.class));
+        });
+
         updateOrganizationSummaries();
 
         // Export Backup
@@ -170,6 +174,14 @@ public class SettingsFragment extends Fragment {
             binding.textPersonaOrgSummary.setText("Alphabetical (Z to A)");
         } else {
             binding.textPersonaOrgSummary.setText("Recently updated first");
+        }
+
+        if (repo.isDebugModeEnabled()) {
+            binding.textDebugModeSummary.setText("Active (Isolated Debug DB)");
+            binding.textDebugModeSummary.setTextColor(requireContext().getColor(R.color.amber_warning));
+        } else {
+            binding.textDebugModeSummary.setText("Disabled (Production DB)");
+            binding.textDebugModeSummary.setTextColor(requireContext().getColor(R.color.text_secondary));
         }
     }
 

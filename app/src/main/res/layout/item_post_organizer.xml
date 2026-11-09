@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/card_organizer_block"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    app:cardBackgroundColor="@color/surface_card"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeColor="@color/border_divider"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <!-- Drag Handle Icon -->
+        <ImageView
+            android:id="@+id/image_drag_handle"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="Drag Handle"
+            android:padding="2dp"
+            android:src="@drawable/ic_drag_handle"
+            app:tint="@color/text_tertiary" />
+
+        <!-- Position Number Badge -->
+        <TextView
+            android:id="@+id/text_organizer_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/bg_counter_pill"
+            android:minWidth="28dp"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:text="#1"
+            android:textAlignment="center"
+            android:textColor="@color/indigo_primary"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <!-- Center Details: Username & Single-line Text -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_organizer_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="@username"
+                android:textColor="@color/indigo_primary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/text_organizer_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Post text preview line that truncates with ellipsis..."
+                android:textColor="@color/text_primary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/text_organizer_meta"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="2h ago"
+                android:textColor="@color/text_tertiary"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Post Image Thumbnail (Visible if post has images; shows first image) -->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/image_organizer_thumbnail"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@color/surface_elevated"
+            android:contentDescription="Post thumbnail"
+            android:scaleType="centerCrop"
+            android:visibility="gone"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.RoundedCard" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

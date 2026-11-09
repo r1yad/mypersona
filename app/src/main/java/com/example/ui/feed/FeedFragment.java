@@ -109,11 +109,22 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
         binding.btnEmptyCreatePersona.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), PersonaEditActivity.class));
         });
+
+        binding.layoutDebugModeBanner.setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), com.example.ui.settings.DebugModeActivity.class));
+        });
+    }
+
+    private void updateDebugBanner() {
+        if (binding == null) return;
+        boolean isDebug = com.example.data.repository.AppRepository.getInstance(requireContext()).isDebugModeEnabled();
+        binding.layoutDebugModeBanner.setVisibility(isDebug ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        updateDebugBanner();
         if (viewModel != null) {
             viewModel.refresh();
         }
@@ -142,7 +153,7 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
     public void onDeleteClicked(PostWithDetails post) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Post")
-                .setMessage("Are you sure you want to delete this post?")
+                .setMessage("Are you sure you want to permanently delete this post? This action cannot be undone.")
                 .setPositiveButton("Delete", (dialog, which) -> viewModel.deletePost(post.getPost().getId()))
                 .setNegativeButton("Cancel", null)
                 .show();

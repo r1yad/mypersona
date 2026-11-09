@@ -64,4 +64,21 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+    private static volatile AppDatabase DEBUG_INSTANCE;
+
+    public static AppDatabase getDebugInstance(Context context) {
+        if (DEBUG_INSTANCE == null) {
+            synchronized (AppDatabase.class) {
+                if (DEBUG_INSTANCE == null) {
+                    DEBUG_INSTANCE = Room.databaseBuilder(
+                            context.getApplicationContext(),
+                            AppDatabase.class,
+                            "personanet_debug.db"
+                    ).fallbackToDestructiveMigration().build();
+                }
+            }
+        }
+        return DEBUG_INSTANCE;
+    }
 }

@@ -65,7 +65,14 @@ public class MyProfileFragment extends Fragment {
 
             @Override
             public void onDeleteClicked(PostWithDetails post) {
-                repository.deletePost(post.getPost().getId(), () -> loadActivePersonaPosts());
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Delete Post")
+                        .setMessage("Are you sure you want to permanently delete this post? This action cannot be undone.")
+                        .setPositiveButton("Delete", (dialog, which) -> {
+                            repository.deletePost(post.getPost().getId(), () -> loadActivePersonaPosts());
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
             }
 
             @Override

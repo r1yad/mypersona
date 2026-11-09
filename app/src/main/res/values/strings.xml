@@ -79,4 +79,16 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="confirm">Confirm</string>
+
+    <!-- Post Organizer & Drag Drop -->
+    <string name="drag_to_reorder_hint">Drag cards up or down to customize timeline feed order</string>
+    <string name="save_feed_order">Save Feed Order</string>
+    <string name="reset_to_newest">Reset to Newest</string>
+    <string name="delete_post_confirm_title">Delete Post</string>
+    <string name="delete_post_confirm_message">Are you sure you want to permanently delete this post? This action cannot be undone.</string>
+
+    <!-- Debug Mode -->
+    <string name="debug_mode_title">Debug Mode</string>
+    <string name="debug_mode_desc">Isolated test environment to generate sample personas, posts, and image sliders</string>
+    <string name="debug_mode_active_banner">DEBUG MODE ACTIVE • Isolated Test Database</string>
 </resources>

@@ -52,17 +52,15 @@
             app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Post Card Details -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_original_post"
+    <!-- Scrollable Content: Original Post Details + Comments -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_post_detail"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="12dp"
-        app:cardBackgroundColor="@color/surface_card"
-        app:cardCornerRadius="16dp"
-        app:strokeColor="@color/border_divider"
-        app:strokeWidth="1dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:scrollbars="vertical"
         app:layout_constraintTop_toBottomOf="@id/top_bar"
+        app:layout_constraintBottom_toTopOf="@id/layout_comment_input_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -70,197 +68,296 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingBottom="24dp">
 
-            <LinearLayout
-                android:id="@+id/layout_author_header"
+            <!-- Post Card Details -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_original_post"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:clickable="true"
-                android:focusable="true">
-
-                <com.google.android.material.imageview.ShapeableImageView
-                    android:id="@+id/image_detail_avatar"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:contentDescription="@string/app_name"
-                    android:src="@drawable/ic_person_placeholder"
-                    app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
+                android:layout_margin="12dp"
+                app:cardBackgroundColor="@color/surface_card"
+                app:cardCornerRadius="16dp"
+                app:strokeColor="@color/border_divider"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/layout_author_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/image_detail_avatar"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:contentDescription="@string/app_name"
+                            android:src="@drawable/ic_person_placeholder"
+                            app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/text_detail_author"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/text_primary"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/text_detail_handle_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <ImageView
+                            android:id="@+id/btn_detail_edit"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="Edit Post"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_edit"
+                            android:visibility="gone"
+                            app:tint="@color/text_tertiary" />
+
+                        <ImageView
+                            android:id="@+id/btn_detail_delete"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="4dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/delete"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_close_or_delete"
+                            android:visibility="gone"
+                            app:tint="@color/text_tertiary" />
+                    </LinearLayout>
 
                     <TextView
-                        android:id="@+id/text_detail_author"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/text_detail_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
                         android:textColor="@color/text_primary"
                         android:textSize="15sp"
-                        android:textStyle="bold" />
+                        android:lineSpacingExtra="3dp" />
 
-                    <TextView
-                        android:id="@+id/text_detail_handle_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                    <!-- Attached Media Slider Container -->
+                    <FrameLayout
+                        android:id="@+id/layout_detail_media_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="340dp"
+                        android:layout_marginTop="12dp"
+                        android:visibility="gone">
+
+                        <androidx.viewpager2.widget.ViewPager2
+                            android:id="@+id/view_pager_detail_media"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" />
+
+                        <!-- Position Counter Badge -->
+                        <TextView
+                            android:id="@+id/text_detail_media_counter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="top|end"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/bg_counter_pill"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold"
+                            android:visibility="gone" />
+
+                        <!-- Dots Indicator Row -->
+                        <LinearLayout
+                            android:id="@+id/layout_detail_media_dots"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="bottom|center_horizontal"
+                            android:layout_marginBottom="8dp"
+                            android:background="@drawable/bg_counter_pill"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="6dp"
+                            android:paddingVertical="4dp"
+                            android:visibility="gone" />
+                    </FrameLayout>
+
+                    <!-- Actions Row: Likes & Comments count in detail -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:id="@+id/btn_detail_like"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp">
+
+                            <ImageView
+                                android:id="@+id/image_detail_like_icon"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:contentDescription="@string/like"
+                                android:src="@drawable/ic_heart_outline"
+                                app:tint="@color/text_secondary" />
+
+                            <TextView
+                                android:id="@+id/text_detail_likes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="0"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/btn_detail_comments"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="16dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="8dp">
+
+                            <ImageView
+                                android:layout_width="19dp"
+                                android:layout_height="19dp"
+                                android:contentDescription="@string/comment"
+                                android:src="@drawable/ic_comment"
+                                app:tint="@color/text_secondary" />
+
+                            <TextView
+                                android:id="@+id/text_detail_comments"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="6dp"
+                                android:text="0"
+                                android:textColor="@color/text_secondary"
+                                android:textSize="13sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+                    </LinearLayout>
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                <ImageView
-                    android:id="@+id/btn_detail_edit"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Edit Post"
-                    android:padding="6dp"
-                    android:src="@drawable/ic_edit"
-                    android:visibility="gone"
-                    app:tint="@color/text_tertiary" />
-
-                <ImageView
-                    android:id="@+id/btn_detail_delete"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_marginStart="4dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/delete"
-                    android:padding="6dp"
-                    android:src="@drawable/ic_close_or_delete"
-                    android:visibility="gone"
-                    app:tint="@color/text_tertiary" />
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/text_detail_content"
+            <!-- Comments Section Header -->
+            <LinearLayout
+                android:id="@+id/layout_comments_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:textColor="@color/text_primary"
-                android:textSize="15sp"
-                android:lineSpacingExtra="3dp" />
-
-            <!-- Attached Media Slider Container -->
-            <FrameLayout
-                android:id="@+id/layout_detail_media_container"
-                android:layout_width="match_parent"
-                android:layout_height="360dp"
-                android:layout_marginTop="12dp"
-                android:visibility="gone">
-
-                <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/view_pager_detail_media"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
-                <!-- Position Counter Badge -->
-                <TextView
-                    android:id="@+id/text_detail_media_counter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top|end"
-                    android:layout_margin="10dp"
-                    android:background="@drawable/bg_counter_pill"
-                    android:textColor="#FFFFFF"
-                    android:textSize="11sp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
-
-                <!-- Dots Indicator Row -->
-                <LinearLayout
-                    android:id="@+id/layout_detail_media_dots"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|center_horizontal"
-                    android:layout_marginBottom="8dp"
-                    android:background="@drawable/bg_counter_pill"
-                    android:orientation="horizontal"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="4dp"
-                    android:visibility="gone" />
-            </FrameLayout>
-
-            <!-- Actions Row: Likes & Comments count in detail -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_marginHorizontal="16dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <LinearLayout
-                    android:id="@+id/btn_detail_like"
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:src="@drawable/ic_comment"
+                    app:tint="@color/indigo_primary"
+                    android:contentDescription="@string/comments_title" />
+
+                <TextView
+                    android:id="@+id/text_comments_header_title"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="8dp">
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/comments_title"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
-                    <ImageView
-                        android:id="@+id/image_detail_like_icon"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:contentDescription="@string/like"
-                        android:src="@drawable/ic_heart_outline"
-                        app:tint="@color/text_secondary" />
-
-                    <TextView
-                        android:id="@+id/text_detail_likes"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="0"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <LinearLayout
+                <TextView
+                    android:id="@+id/text_comments_header_count"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="16dp"
-                    android:gravity="center_vertical"
-                    android:paddingHorizontal="8dp">
-
-                    <ImageView
-                        android:layout_width="19dp"
-                        android:layout_height="19dp"
-                        android:contentDescription="@string/comment"
-                        android:src="@drawable/ic_comment"
-                        app:tint="@color/text_secondary" />
-
-                    <TextView
-                        android:id="@+id/text_detail_comments"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="6dp"
-                        android:text="0"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_counter_pill"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="2dp"
+                    android:text="0 comments"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </LinearLayout>
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Comments List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_comments"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/layout_comment_input_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_original_post" />
+            <!-- Empty Comments Placeholder -->
+            <LinearLayout
+                android:id="@+id/layout_empty_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingVertical="32dp"
+                android:paddingHorizontal="24dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:src="@drawable/ic_comment"
+                    app:tint="@color/text_tertiary"
+                    android:contentDescription="No comments" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="No comments yet"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Be the first to share your thoughts below!"
+                    android:textColor="@color/text_tertiary"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <!-- Comments List -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"
+                android:clipToPadding="false"
+                android:paddingHorizontal="4dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Comment Input Bar with Replying Banner -->
     <LinearLayout
@@ -338,25 +435,25 @@
                 android:id="@+id/edit_comment"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/bg_input_field"
-            android:hint="@string/add_comment_hint"
-            android:maxLines="3"
-            android:padding="10dp"
-            android:textColor="@color/text_primary"
-            android:textColorHint="@color/text_tertiary"
-            android:textSize="14sp" />
+                android:layout_weight="1"
+                android:background="@drawable/bg_input_field"
+                android:hint="@string/add_comment_hint"
+                android:maxLines="3"
+                android:padding="10dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_tertiary"
+                android:textSize="14sp" />
 
-        <ImageView
-            android:id="@+id/btn_send_comment"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/send"
-            android:padding="8dp"
-            android:src="@drawable/ic_send"
-            app:tint="@color/indigo_primary" />
+            <ImageView
+                android:id="@+id/btn_send_comment"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/send"
+                android:padding="8dp"
+                android:src="@drawable/ic_send"
+                app:tint="@color/indigo_primary" />
         </LinearLayout>
     </LinearLayout>
 
