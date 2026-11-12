@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
+import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +32,18 @@ public class MediaHelper {
     private static final String TAG = "MediaHelper";
     private static final int MAX_DIMENSION = 1920;
     private static final int WEBP_QUALITY = 80;
+
+    private static final int CACHE_SIZE_KB = (int) (Runtime.getRuntime().maxMemory() / 1024L / 8L);
+    private static final LruCache<String, Bitmap> BITMAP_CACHE = new LruCache<String, Bitmap>(Math.max(4096, CACHE_SIZE_KB)) {
+        @Override
+        protected int sizeOf(@NonNull String key, @NonNull Bitmap value) {
+            return Math.max(1, value.getByteCount() / 1024);
+        }
+    };
+
+    public static void clearBitmapCache() {
+        BITMAP_CACHE.evictAll();
+    }
 
     /**
      * Resolves an image path from direct path, relative path, or old legacy device path.
@@ -80,13 +93,20 @@ public class MediaHelper {
     }
 
     /**
-     * Safely loads and scales a Bitmap using inSampleSize to prevent OutOfMemory errors.
+     * Safely loads and scales a Bitmap using inSampleSize and an in-memory LruCache
+     * to avoid redundant disk decoding and maintain smooth 60 FPS scrolling.
      */
     @Nullable
     public static Bitmap loadBitmap(@NonNull Context context, @Nullable String rawPath, int maxTargetDimension) {
         File file = resolveFile(context, rawPath);
         if (file == null) {
             return null;
+        }
+
+        String cacheKey = file.getAbsolutePath() + "#" + maxTargetDimension + "#" + file.lastModified();
+        Bitmap cached = BITMAP_CACHE.get(cacheKey);
+        if (cached != null && !cached.isRecycled()) {
+            return cached;
         }
 
         try {
@@ -107,7 +127,11 @@ public class MediaHelper {
             BitmapFactory.Options decodeOptions = new BitmapFactory.Options();
             decodeOptions.inSampleSize = Math.max(1, inSampleSize);
             decodeOptions.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            return BitmapFactory.decodeFile(file.getAbsolutePath(), decodeOptions);
+            Bitmap decoded = BitmapFactory.decodeFile(file.getAbsolutePath(), decodeOptions);
+            if (decoded != null) {
+                BITMAP_CACHE.put(cacheKey, decoded);
+            }
+            return decoded;
         } catch (Throwable t) {
             Log.e(TAG, "Failed to load bitmap for: " + rawPath, t);
             return null;

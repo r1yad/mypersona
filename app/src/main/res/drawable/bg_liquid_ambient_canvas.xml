@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base Obsidian Depth -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="315"
+                android:startColor="@color/bg_midnight"
+                android:centerColor="@color/bg_canvas_mid"
+                android:endColor="@color/bg_canvas_deep"
+                android:type="linear" />
+        </shape>
+    </item>
+    <!-- Upper-Left Indigo Aurora Glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.18"
+                android:centerY="0.12"
+                android:gradientRadius="360dp"
+                android:startColor="#267C83FF"
+                android:centerColor="#0F5558E6"
+                android:endColor="#00060913" />
+        </shape>
+    </item>
+    <!-- Upper-Right Cyan Refraction Glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.88"
+                android:centerY="0.22"
+                android:gradientRadius="300dp"
+                android:startColor="#1E38BDF8"
+                android:centerColor="#0A38BDF8"
+                android:endColor="#00060913" />
+        </shape>
+    </item>
+    <!-- Lower-Center Violet Depth Glow -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:centerX="0.50"
+                android:centerY="0.86"
+                android:gradientRadius="340dp"
+                android:startColor="#1EA78BFA"
+                android:centerColor="#08A78BFA"
+                android:endColor="#0004060D" />
+        </shape>
+    </item>
+</layer-list>

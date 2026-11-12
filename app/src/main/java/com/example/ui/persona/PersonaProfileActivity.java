@@ -2,17 +2,15 @@ package com.example.ui.persona;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.R;
 import com.example.data.entity.PersonaEntity;
@@ -20,12 +18,11 @@ import com.example.data.entity.PostWithDetails;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPersonaProfileBinding;
 import com.example.ui.chat.ChatActivity;
+import com.example.ui.feed.EditPostDialog;
 import com.example.ui.feed.FeedAdapter;
 import com.example.ui.feed.PostDetailActivity;
+import com.example.util.LiquidGlassHelper;
 import com.example.util.MediaHelper;
-
-import java.io.File;
-import java.util.List;
 
 public class PersonaProfileActivity extends AppCompatActivity implements FeedAdapter.OnPostClickListener {
 
@@ -40,6 +37,7 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityPersonaProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -57,23 +55,37 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
             }
         }
 
-        binding.toolbarProfile.setNavigationOnClickListener(v -> finish());
+        LiquidGlassHelper.applyTopInsets(binding.appBarProfile);
+        LiquidGlassHelper.applyBottomInsets(binding.scrollProfile);
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnProfileEdit,
+                binding.btnProfileSetActive,
+                binding.btnProfileMessage
+        );
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.toolbarProfile, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(PersonaProfileActivity.this);
+            }
         });
+
+        binding.toolbarProfile.setNavigationOnClickListener(v ->
+                LiquidGlassHelper.finishWithGlassTransition(this));
 
         feedAdapter = new FeedAdapter(this);
         binding.recyclerProfilePosts.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerProfilePosts.setAdapter(feedAdapter);
+        RecyclerView.ItemAnimator animator = binding.recyclerProfilePosts.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
 
         binding.btnProfileEdit.setOnClickListener(v -> {
             if (currentPersona != null) {
                 Intent intent = new Intent(this, PersonaEditActivity.class);
                 intent.putExtra(PersonaEditActivity.EXTRA_PERSONA_ID, currentPersona.getId());
-                startActivity(intent);
+                LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
             }
         });
 
@@ -104,7 +116,7 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
     private void loadPersonaAndPosts() {
         repository.loadPersonaById(personaId, persona -> {
             if (persona == null) {
-                finish();
+                LiquidGlassHelper.finishWithGlassTransition(this);
                 return;
             }
             currentPersona = persona;
@@ -139,7 +151,6 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
             binding.imageProfileAvatar.setImageResource(R.drawable.ic_person_placeholder);
         }
 
-        // Traits and style
         String traits = persona.getPersonalityTraits();
         if (traits != null && !traits.trim().isEmpty()) {
             binding.textProfileTraits.setText("✦ Personality: " + traits.trim());
@@ -214,7 +225,7 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
         repository.startOrGetConversation(activePersona.getId(), personaId, conv -> {
             Intent intent = new Intent(this, ChatActivity.class);
             intent.putExtra(ChatActivity.EXTRA_CONVERSATION_ID, conv.getId());
-            startActivity(intent);
+            LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
         });
     }
 
@@ -222,7 +233,7 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
     public void onPostClicked(PostWithDetails post) {
         Intent intent = new Intent(this, PostDetailActivity.class);
         intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getPost().getId());
-        startActivity(intent);
+        LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
     }
 
     @Override
@@ -232,21 +243,22 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
 
     @Override
     public void onEditClicked(PostWithDetails post) {
-        com.example.ui.feed.EditPostDialog dialog = com.example.ui.feed.EditPostDialog.newInstance(post);
+        if (!LiquidGlassHelper.canNavigate()) return;
+        EditPostDialog dialog = EditPostDialog.newInstance(post);
         dialog.setOnPostUpdatedCallback(this::loadAuthorPosts);
-        dialog.show(getSupportFragmentManager(), com.example.ui.feed.EditPostDialog.TAG);
+        dialog.show(getSupportFragmentManager(), EditPostDialog.TAG);
     }
 
     @Override
     public void onDeleteClicked(PostWithDetails post) {
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Post")
-                .setMessage("Are you sure you want to delete this post?")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    repository.deletePost(post.getPost().getId(), this::loadAuthorPosts);
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        LiquidGlassHelper.showGlassConfirmDialog(
+                this,
+                getString(R.string.delete_post_title),
+                getString(R.string.delete_post_message),
+                getString(R.string.delete),
+                true,
+                () -> repository.deletePost(post.getPost().getId(), this::loadAuthorPosts)
+        );
     }
 
     @Override
@@ -254,7 +266,7 @@ public class PersonaProfileActivity extends AppCompatActivity implements FeedAda
         if (author != null && !author.getId().equals(personaId)) {
             Intent intent = new Intent(this, PersonaProfileActivity.class);
             intent.putExtra(PersonaProfileActivity.EXTRA_PERSONA_ID, author.getId());
-            startActivity(intent);
+            LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
         }
     }
 }

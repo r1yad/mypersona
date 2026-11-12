@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/glass_border_bright" />
+            <corners
+                android:topLeftRadius="@dimen/glass_radius_sheet"
+                android:topRightRadius="@dimen/glass_radius_sheet" />
+        </shape>
+    </item>
+    <item android:top="1dp">
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#F5151E36"
+                android:endColor="#F50B1120"
+                android:type="linear" />
+            <corners
+                android:topLeftRadius="27dp"
+                android:topRightRadius="27dp" />
+        </shape>
+    </item>
+</layer-list>

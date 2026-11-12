@@ -3,40 +3,50 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_midnight">
+    android:background="@android:color/transparent">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_personas"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingBottom="88dp"
         android:paddingTop="8dp"
+        android:paddingBottom="96dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Empty State -->
+    <!-- Frosted Glass Empty State -->
     <LinearLayout
         android:id="@+id/layout_empty_personas"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:background="@drawable/bg_glass_card"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="32dp"
+        android:padding="28dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="460dp">
 
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:contentDescription="@string/empty_personas_title"
-            android:src="@drawable/ic_personas"
-            app:tint="@color/indigo_primary" />
+        <FrameLayout
+            android:layout_width="76dp"
+            android:layout_height="76dp"
+            android:background="@drawable/bg_glass_avatar_ring">
+
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/empty_personas_title"
+                android:src="@drawable/ic_personas"
+                app:tint="@color/indigo_primary" />
+        </FrameLayout>
 
         <TextView
             android:layout_width="wrap_content"
@@ -52,32 +62,34 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
+            android:lineSpacingExtra="3dp"
             android:text="@string/empty_personas_subtitle"
             android:textColor="@color/text_secondary"
             android:textSize="14sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_empty_create_first_persona"
+            style="@style/Widget.PersonaNet.GlassButton.Primary"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="20dp"
-            android:backgroundTint="@color/indigo_primary"
-            android:text="@string/create_persona"
-            android:textColor="@color/white"
-            app:cornerRadius="12dp" />
+            android:paddingHorizontal="24dp"
+            android:text="@string/create_persona" />
     </LinearLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_create_persona"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:backgroundTint="@color/indigo_primary"
+        android:layout_margin="18dp"
         android:contentDescription="@string/create_persona"
         android:src="@drawable/ic_add"
-        app:elevation="6dp"
+        app:backgroundTint="@color/indigo_primary"
+        app:borderWidth="1dp"
+        app:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:rippleColor="@color/ripple_color"
         app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

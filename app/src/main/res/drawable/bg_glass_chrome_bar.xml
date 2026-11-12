@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:startColor="#EB0E1528"
+                android:endColor="#CC090F1E"
+                android:type="linear" />
+        </shape>
+    </item>
+    <!-- Bottom Specular Hairline -->
+    <item android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <size android:height="1dp" />
+            <solid android:color="@color/glass_border_subtle" />
+        </shape>
+    </item>
+</layer-list>

@@ -1,34 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Background & Surfaces -->
-    <color name="bg_midnight">#0B0E14</color>
-    <color name="surface_card">#161B26</color>
-    <color name="surface_elevated">#1F2637</color>
-    <color name="surface_input">#121620</color>
+    <!-- Deep Obsidian Atmospheric Canvas -->
+    <color name="bg_midnight">#060913</color>
+    <color name="bg_canvas_mid">#0A1020</color>
+    <color name="bg_canvas_deep">#04060D</color>
 
-    <!-- Accents -->
-    <color name="indigo_primary">#6366F1</color>
-    <color name="indigo_dark">#4F46E5</color>
-    <color name="violet_accent">#8B5CF6</color>
-    <color name="emerald_success">#10B981</color>
-    <color name="rose_like">#EC4899</color>
-    <color name="red_error">#EF4444</color>
-    <color name="amber_warning">#F59E0B</color>
+    <!-- Translucent Liquid Glass Surfaces -->
+    <color name="surface_card">#B311182B</color>
+    <color name="surface_elevated">#CC19223B</color>
+    <color name="surface_input">#80090F1E</color>
+    <color name="glass_surface_chrome">#D90B1120</color>
+    <color name="glass_surface_subtle">#5918223A</color>
+    <color name="glass_surface_dialog">#EB11182B</color>
+    <color name="glass_surface_nav">#E00D1426</color>
+    <color name="glass_scrim">#99020409</color>
 
-    <!-- Typography -->
-    <color name="text_primary">#F1F5F9</color>
-    <color name="text_secondary">#94A3B8</color>
-    <color name="text_tertiary">#64748B</color>
+    <!-- Specular Highlights & Glass Borders -->
+    <color name="border_divider">#29FFFFFF</color>
+    <color name="glass_border_bright">#40FFFFFF</color>
+    <color name="glass_border_subtle">#1AFFFFFF</color>
+    <color name="glass_border_accent">#737C83FF</color>
+    <color name="glass_sheen_top">#24FFFFFF</color>
+    <color name="glass_sheen_mid">#08FFFFFF</color>
+    <color name="glass_sheen_none">#00FFFFFF</color>
 
-    <!-- Chrome & Dividers -->
-    <color name="border_divider">#2E384D</color>
-    <color name="ripple_color">#336366F1</color>
+    <!-- Luminous Accents -->
+    <color name="indigo_primary">#7C83FF</color>
+    <color name="indigo_dark">#5558E6</color>
+    <color name="indigo_glow">#387C83FF</color>
+    <color name="cyan_accent">#38BDF8</color>
+    <color name="violet_accent">#A78BFA</color>
+    <color name="violet_glow">#2EA78BFA</color>
+    <color name="emerald_success">#34D399</color>
+    <color name="emerald_glow">#2634D399</color>
+    <color name="rose_like">#F472B6</color>
+    <color name="red_error">#F87171</color>
+    <color name="red_glow">#26F87171</color>
+    <color name="amber_warning">#FBBF24</color>
+    <color name="amber_glow">#29FBBF24</color>
 
-    <!-- Chat Bubbles -->
-    <color name="chat_bubble_out">#3730A3</color>
-    <color name="chat_bubble_in">#1F2637</color>
+    <!-- Crisp Typography Hierarchy -->
+    <color name="text_primary">#F8FAFC</color>
+    <color name="text_secondary">#B4C2D8</color>
+    <color name="text_tertiary">#7C8CA6</color>
+
+    <!-- Interaction & Chrome -->
+    <color name="ripple_color">#38FFFFFF</color>
+    <color name="ripple_accent">#407C83FF</color>
+
+    <!-- Glass Chat Bubbles -->
+    <color name="chat_bubble_out">#CC4338CA</color>
+    <color name="chat_bubble_in">#BF172036</color>
 
     <!-- Standard compatibility colors -->
     <color name="white">#FFFFFFFF</color>
     <color name="black">#FF000000</color>
+    <color name="transparent">#00000000</color>
 </resources>

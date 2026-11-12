@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_midnight">
+    android:background="@drawable/bg_liquid_ambient_canvas">
 
-    <!-- Top App Bar -->
+    <!-- Frosted Top App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_post_org"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card"
+        android:background="@drawable/bg_glass_chrome_bar"
+        app:elevation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,19 +21,21 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:navigationIcon="@drawable/ic_back"
+            app:navigationIconTint="@color/text_primary"
             app:title="Post Organizer"
             app:titleTextColor="@color/text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Header Description & Controls Banner -->
+    <!-- Frosted Instructions & Controls Panel -->
     <LinearLayout
         android:id="@+id/layout_org_header"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_glass_card"
         android:orientation="vertical"
-        android:paddingHorizontal="16dp"
-        android:paddingBottom="12dp"
+        android:padding="14dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/app_bar_post_org">
@@ -40,15 +43,15 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Drag and drop cards up or down to customize timeline feed order. Newer published posts will automatically appear above this customized order."
+            android:lineSpacingExtra="2dp"
+            android:text="Drag and drop cards up or down to customize timeline feed order. Newer published posts automatically appear above this customized order."
             android:textColor="@color/text_secondary"
-            android:textSize="12sp"
-            android:lineSpacingExtra="2dp" />
+            android:textSize="12sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="10dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -56,11 +59,11 @@
                 android:id="@+id/text_post_count_badge"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_counter_pill"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="3dp"
+                android:background="@drawable/bg_glass_pill"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
                 android:text="0 posts"
-                android:textColor="@color/text_secondary"
+                android:textColor="@color/text_primary"
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
@@ -73,18 +76,13 @@
                 android:id="@+id/btn_reset_chronological"
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:paddingHorizontal="8dp"
+                android:layout_height="48dp"
+                android:paddingHorizontal="12dp"
                 android:text="Reset to Newest"
                 android:textColor="@color/indigo_primary"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
-        
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="4dp"
-            android:background="@color/border_divider" />
     </LinearLayout>
 
     <!-- Posts RecyclerView for Drag and Drop -->
@@ -93,7 +91,8 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
-        android:paddingVertical="8dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp"
         app:layout_constraintBottom_toTopOf="@id/layout_bottom_bar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -116,6 +115,7 @@
         <ImageView
             android:layout_width="56dp"
             android:layout_height="56dp"
+            android:contentDescription="@string/empty_feed_title"
             android:src="@drawable/ic_feed"
             app:tint="@color/text_tertiary" />
 
@@ -137,30 +137,30 @@
             android:textSize="13sp" />
     </LinearLayout>
 
-    <!-- Bottom Save Action Bar -->
+    <!-- Frosted Bottom Save Action Bar -->
     <LinearLayout
         android:id="@+id/layout_bottom_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card"
-        android:elevation="8dp"
+        android:background="@drawable/bg_glass_bottom_nav"
+        android:elevation="0dp"
         android:orientation="vertical"
-        android:padding="12dp"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="14dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_post_org"
+            style="@style/Widget.PersonaNet.GlassButton.Primary"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:backgroundTint="@color/indigo_primary"
+            android:alpha="0.45"
             android:enabled="false"
             android:text="Save Custom Order"
-            android:textColor="@color/white"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:cornerRadius="12dp" />
+            android:textSize="15sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

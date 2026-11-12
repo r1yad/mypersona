@@ -6,15 +6,16 @@
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
     android:layout_marginVertical="6dp"
-    app:cardBackgroundColor="@color/surface_card"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="2dp"
-    app:strokeColor="@color/border_divider"
-    app:strokeWidth="1dp">
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="@dimen/glass_radius_card"
+    app:cardElevation="0dp"
+    app:rippleColor="@color/ripple_color"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_glass_card"
         android:orientation="vertical"
         android:padding="16dp">
 
@@ -26,12 +27,16 @@
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_persona_avatar"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@color/surface_elevated"
                 android:contentDescription="@string/app_name"
+                android:padding="1dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_person_placeholder"
-                app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
+                app:strokeColor="@color/glass_border_bright"
+                app:strokeWidth="1.2dp" />
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -54,18 +59,22 @@
                     android:id="@+id/text_persona_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:textColor="@color/indigo_primary"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
             </LinearLayout>
 
             <ImageView
                 android:id="@+id/btn_persona_edit"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/edit_persona"
-                android:padding="6dp"
-                android:src="@drawable/ic_settings"
+                android:padding="13dp"
+                android:src="@drawable/ic_edit"
                 app:tint="@color/text_secondary" />
         </LinearLayout>
 
@@ -75,10 +84,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:lineSpacingExtra="3dp"
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
-        <!-- Traits and Style Row -->
+        <!-- Traits and Style Pills Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -87,29 +97,29 @@
 
             <TextView
                 android:id="@+id/badge_traits"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_input_field"
+                android:layout_weight="1"
+                android:background="@drawable/bg_glass_pill_accent"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:maxWidth="160dp"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
                 android:textColor="@color/violet_accent"
                 android:textSize="11sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/badge_style"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_input_field"
+                android:layout_weight="1"
+                android:background="@drawable/bg_glass_pill"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:maxWidth="160dp"
-                android:paddingHorizontal="8dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
                 android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
@@ -127,8 +137,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_active_persona_chip"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="6dp"
                 android:text="★ Active Identity"
                 android:textColor="@color/emerald_success"
                 android:textSize="12sp"
@@ -142,13 +152,13 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_set_active"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.PersonaNet.GlassButton.Secondary"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="44dp"
+                android:paddingHorizontal="16dp"
                 android:text="Switch To Persona"
                 android:textColor="@color/indigo_primary"
-                app:cornerRadius="10dp"
-                app:strokeColor="@color/indigo_primary" />
+                android:textSize="13sp" />
         </LinearLayout>
 
     </LinearLayout>

@@ -3,14 +3,13 @@ package com.example.ui.settings;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.R;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPersonaOrganizationBinding;
+import com.example.util.LiquidGlassHelper;
 
 public class PersonaOrganizationActivity extends AppCompatActivity {
 
@@ -19,19 +18,25 @@ public class PersonaOrganizationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityPersonaOrganizationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         repository = AppRepository.getInstance(this);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarPersonaOrg, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
+        LiquidGlassHelper.applyTopInsets(binding.appBarPersonaOrg);
+        LiquidGlassHelper.applyBottomInsets(binding.scrollPersonaOrg);
+        LiquidGlassHelper.attachPressFeedback(binding.btnSavePersonaOrg);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(PersonaOrganizationActivity.this);
+            }
         });
 
-        binding.toolbarPersonaOrg.setNavigationOnClickListener(v -> finish());
+        binding.toolbarPersonaOrg.setNavigationOnClickListener(v -> LiquidGlassHelper.finishWithGlassTransition(this));
 
         String currentSort = repository.getPersonaSortOrder();
         if (AppRepository.SORT_PERSONAS_NAME_AZ.equals(currentSort)) {
@@ -53,7 +58,7 @@ public class PersonaOrganizationActivity extends AppCompatActivity {
 
             repository.setPersonaSortOrder(newOrder);
             Toast.makeText(this, "Persona organization updated", Toast.LENGTH_SHORT).show();
-            finish();
+            LiquidGlassHelper.finishWithGlassTransition(this);
         });
     }
 }

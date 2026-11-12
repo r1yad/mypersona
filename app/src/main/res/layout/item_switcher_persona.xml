@@ -8,18 +8,23 @@
     android:clickable="true"
     android:focusable="true"
     android:gravity="center_vertical"
+    android:minHeight="60dp"
     android:orientation="horizontal"
     android:paddingHorizontal="20dp"
-    android:paddingVertical="12dp">
+    android:paddingVertical="10dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_switcher_avatar"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="42dp"
+        android:layout_height="42dp"
+        android:background="@color/surface_elevated"
         android:contentDescription="@string/app_name"
+        android:padding="1dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_person_placeholder"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
+        app:strokeColor="@color/glass_border_bright"
+        app:strokeWidth="1.5dp" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -32,6 +37,8 @@
             android:id="@+id/text_switcher_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/text_primary"
             android:textSize="15sp"
             android:textStyle="bold" />
@@ -40,6 +47,8 @@
             android:id="@+id/text_switcher_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textColor="@color/indigo_primary"
             android:textSize="12sp" />
     </LinearLayout>
@@ -49,8 +58,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_active_persona_chip"
-        android:paddingHorizontal="8dp"
-        android:paddingVertical="2dp"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="3dp"
         android:text="@string/active_badge"
         android:textColor="@color/emerald_success"
         android:textSize="11sp"
@@ -59,13 +68,13 @@
 
     <ImageView
         android:id="@+id/btn_switcher_profile"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="4dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="View Profile"
-        android:padding="6dp"
+        android:padding="12dp"
         android:src="@drawable/ic_personas"
-        app:tint="@color/text_tertiary" />
+        app:tint="@color/text_secondary" />
 
 </LinearLayout>

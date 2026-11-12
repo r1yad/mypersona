@@ -1,86 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_rounded_card"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/new_conversation"
-        android:textColor="@color/text_primary"
-        android:textSize="18sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Select two personas to begin direct messaging:"
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="First Character:"
-        android:textColor="@color/indigo_primary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <Spinner
-        android:id="@+id/spinner_persona_a"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/bg_input_field"
-        android:padding="8dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Second Character:"
-        android:textColor="@color/violet_accent"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
-    <Spinner
-        android:id="@+id/spinner_persona_b"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="6dp"
-        android:background="@drawable/bg_input_field"
-        android:padding="8dp" />
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="end"
-        android:orientation="horizontal">
+        android:background="@drawable/bg_glass_dialog"
+        android:orientation="vertical"
+        android:padding="22dp">
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel_conversation"
-            style="@style/Widget.Material3.Button.TextButton"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:textColor="@color/text_secondary" />
+            android:text="@string/new_conversation"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_start_conversation"
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/indigo_primary"
-            android:text="Start Chat"
-            android:textColor="@color/white"
-            app:cornerRadius="12dp" />
+            android:layout_marginTop="4dp"
+            android:text="Select two personas to begin direct messaging:"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="First Character:"
+            android:textColor="@color/indigo_primary"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinner_persona_a"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingHorizontal="12dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Second Character:"
+            android:textColor="@color/violet_accent"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinner_persona_b"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_input_field"
+            android:paddingHorizontal="12dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_cancel_conversation"
+                style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:paddingHorizontal="16dp"
+                android:text="@string/cancel"
+                android:textColor="@color/text_secondary" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_start_conversation"
+                style="@style/Widget.PersonaNet.GlassButton.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginStart="10dp"
+                android:paddingHorizontal="18dp"
+                android:text="Start Chat" />
+        </LinearLayout>
+
     </LinearLayout>
-
-</LinearLayout>
+</FrameLayout>

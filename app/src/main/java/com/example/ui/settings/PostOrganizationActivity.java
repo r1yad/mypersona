@@ -4,13 +4,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,10 +17,9 @@ import com.example.R;
 import com.example.data.entity.PostWithDetails;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPostOrganizationBinding;
-import com.google.android.material.card.MaterialCardView;
+import com.example.util.LiquidGlassHelper;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class PostOrganizationActivity extends AppCompatActivity implements
@@ -37,25 +34,25 @@ public class PostOrganizationActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityPostOrganizationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         repository = AppRepository.getInstance(this);
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarPostOrg, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
+        LiquidGlassHelper.applyTopInsets(binding.appBarPostOrg);
+        LiquidGlassHelper.applyBottomInsets(binding.layoutBottomBar);
+        LiquidGlassHelper.attachPressFeedback(binding.btnSavePostOrg, binding.btnResetChronological);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(PostOrganizationActivity.this);
+            }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutBottomBar, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
-            return windowInsets;
-        });
-
-        binding.toolbarPostOrg.setNavigationOnClickListener(v -> finish());
+        binding.toolbarPostOrg.setNavigationOnClickListener(v -> LiquidGlassHelper.finishWithGlassTransition(this));
 
         adapter = new PostOrganizerAdapter(this, this);
         binding.recyclerPostOrganizer.setLayoutManager(new LinearLayoutManager(this));
@@ -99,18 +96,18 @@ public class PostOrganizationActivity extends AppCompatActivity implements
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
                 super.onSelectedChanged(viewHolder, actionState);
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && viewHolder != null) {
-                    // Elevated dragging animation & highlight
-                    viewHolder.itemView.animate()
-                            .scaleX(1.02f)
-                            .scaleY(1.02f)
-                            .setDuration(150)
-                            .start();
-                    ViewCompat.setElevation(viewHolder.itemView, 16f);
+                    if (!LiquidGlassHelper.isReducedMotionEnabled(PostOrganizationActivity.this)) {
+                        viewHolder.itemView.animate()
+                                .scaleX(1.02f)
+                                .scaleY(1.02f)
+                                .setDuration(140)
+                                .start();
+                    }
+                    ViewCompat.setElevation(viewHolder.itemView, 18f);
 
-                    View card = viewHolder.itemView.findViewById(R.id.card_organizer_block);
-                    if (card instanceof MaterialCardView) {
-                        ((MaterialCardView) card).setStrokeColor(ContextCompat.getColor(PostOrganizationActivity.this, R.color.indigo_primary));
-                        ((MaterialCardView) card).setStrokeWidth(4);
+                    View inner = viewHolder.itemView.findViewById(R.id.layout_organizer_block_inner);
+                    if (inner != null) {
+                        inner.setBackgroundResource(R.drawable.bg_glass_card_dragging);
                     }
                 }
             }
@@ -118,17 +115,21 @@ public class PostOrganizationActivity extends AppCompatActivity implements
             @Override
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 super.clearView(recyclerView, viewHolder);
-                viewHolder.itemView.animate()
-                        .scaleX(1.0f)
-                        .scaleY(1.0f)
-                        .setDuration(150)
-                        .start();
-                ViewCompat.setElevation(viewHolder.itemView, 2f);
+                if (!LiquidGlassHelper.isReducedMotionEnabled(PostOrganizationActivity.this)) {
+                    viewHolder.itemView.animate()
+                            .scaleX(1.0f)
+                            .scaleY(1.0f)
+                            .setDuration(140)
+                            .start();
+                } else {
+                    viewHolder.itemView.setScaleX(1.0f);
+                    viewHolder.itemView.setScaleY(1.0f);
+                }
+                ViewCompat.setElevation(viewHolder.itemView, 0f);
 
-                View card = viewHolder.itemView.findViewById(R.id.card_organizer_block);
-                if (card instanceof MaterialCardView) {
-                    ((MaterialCardView) card).setStrokeColor(ContextCompat.getColor(PostOrganizationActivity.this, R.color.border_divider));
-                    ((MaterialCardView) card).setStrokeWidth(2);
+                View inner = viewHolder.itemView.findViewById(R.id.layout_organizer_block_inner);
+                if (inner != null) {
+                    inner.setBackgroundResource(R.drawable.bg_glass_card);
                 }
             }
 
@@ -179,7 +180,8 @@ public class PostOrganizationActivity extends AppCompatActivity implements
         repository.saveCustomPostOrder(orderedIds);
         hasUnsavedChanges = false;
         binding.btnSavePostOrg.setEnabled(false);
+        binding.btnSavePostOrg.setAlpha(0.45f);
         Toast.makeText(this, "Feed arrangement saved successfully!", Toast.LENGTH_SHORT).show();
-        finish();
+        LiquidGlassHelper.finishWithGlassTransition(this);
     }
 }

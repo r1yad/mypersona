@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +22,7 @@ import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityDebugModeBinding;
 import com.example.databinding.ItemDebugPersonaBinding;
 import com.example.databinding.ItemDebugPostBinding;
+import com.example.util.LiquidGlassHelper;
 import com.example.util.MediaHelper;
 
 import java.util.ArrayList;
@@ -36,13 +37,30 @@ public class DebugModeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityDebugModeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         repository = AppRepository.getInstance(this);
 
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        LiquidGlassHelper.applyTopInsets(binding.appBarDebug);
+        LiquidGlassHelper.applyBottomInsets(binding.scrollDebugMode);
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnGenerateAll,
+                binding.btnGeneratePersonas,
+                binding.btnGeneratePosts,
+                binding.btnClearDebugContent
+        );
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(DebugModeActivity.this);
+            }
+        });
+
+        binding.toolbar.setNavigationOnClickListener(v -> LiquidGlassHelper.finishWithGlassTransition(this));
 
         // Setup switch
         boolean isDebugActive = repository.isDebugModeEnabled();
@@ -60,34 +78,42 @@ public class DebugModeActivity extends AppCompatActivity {
         });
 
         // Setup RecyclerViews
-        personasAdapter = new DebugPersonasAdapter(persona -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Delete Debug Persona")
-                    .setMessage("Delete test persona @" + persona.getUsername() + "?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        repository.getExecutor().execute(() -> {
+        personasAdapter = new DebugPersonasAdapter(persona ->
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        this,
+                        "Delete Debug Persona",
+                        "Delete test persona @" + persona.getUsername() + "?",
+                        "Delete",
+                        true,
+                        () -> repository.getExecutor().execute(() -> {
                             repository.getDebugDatabase().personaDao().delete(persona);
-                            runOnUiThread(this::loadDebugContent);
-                        });
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+                            runOnUiThread(() -> {
+                                if (!isFinishing() && !isDestroyed()) {
+                                    loadDebugContent();
+                                }
+                            });
+                        })
+                )
+        );
 
-        postsAdapter = new DebugPostsAdapter(post -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Delete Debug Post")
-                    .setMessage("Delete this debug post?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
-                        repository.getExecutor().execute(() -> {
+        postsAdapter = new DebugPostsAdapter(post ->
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        this,
+                        "Delete Debug Post",
+                        "Delete this debug post?",
+                        "Delete",
+                        true,
+                        () -> repository.getExecutor().execute(() -> {
                             repository.getDebugDatabase().postDao().deleteMediaForPost(post.getId());
                             repository.getDebugDatabase().postDao().deletePost(post);
-                            runOnUiThread(this::loadDebugContent);
-                        });
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+                            runOnUiThread(() -> {
+                                if (!isFinishing() && !isDestroyed()) {
+                                    loadDebugContent();
+                                }
+                            });
+                        })
+                )
+        );
 
         binding.recyclerDebugPersonas.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerDebugPersonas.setAdapter(personasAdapter);
@@ -101,23 +127,24 @@ public class DebugModeActivity extends AppCompatActivity {
         binding.btnGeneratePosts.setOnClickListener(v -> generateContent(false, true));
 
         // Delete all debug data
-        binding.btnClearDebugContent.setOnClickListener(v -> {
-            new AlertDialog.Builder(this)
-                    .setTitle("Delete All Debug Content")
-                    .setMessage("This will wipe all test personas, test posts, test images, and test comments in the isolated debug database. Real data will NOT be touched.")
-                    .setPositiveButton("Wipe Debug DB", (dialog, which) -> {
-                        setLoading(true, "Clearing debug database…");
-                        repository.clearAllDebugData(() -> {
-                            runOnUiThread(() -> {
+        binding.btnClearDebugContent.setOnClickListener(v ->
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        this,
+                        "Delete All Debug Content",
+                        "This will wipe all test personas, test posts, test images, and test comments in the isolated debug database. Real data will NOT be touched.",
+                        "Wipe Debug DB",
+                        true,
+                        () -> {
+                            setLoading(true, "Clearing debug database…");
+                            repository.clearAllDebugData(() -> runOnUiThread(() -> {
+                                if (isFinishing() || isDestroyed()) return;
                                 setLoading(false, "Debug database wiped clean.");
                                 loadDebugContent();
                                 Toast.makeText(this, "All debug data cleared", Toast.LENGTH_SHORT).show();
-                            });
-                        });
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+                            }));
+                        }
+                )
+        );
 
         loadDebugContent();
     }
@@ -165,12 +192,14 @@ public class DebugModeActivity extends AppCompatActivity {
                 }
 
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     setLoading(false, "Test content generation completed successfully!");
                     loadDebugContent();
                     Toast.makeText(this, "Sample content ready in Debug Database", Toast.LENGTH_SHORT).show();
                 });
             } catch (Exception e) {
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     setLoading(false, "Error: " + e.getMessage());
                     Toast.makeText(this, "Failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
@@ -184,6 +213,7 @@ public class DebugModeActivity extends AppCompatActivity {
             List<PostEntity> posts = repository.getDebugDatabase().postDao().getAllPostsSync();
 
             runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
                 binding.textDebugPersonasCount.setText(personas.size() + " Personas");
                 binding.textDebugPostsCount.setText(posts.size() + " Posts");
                 personasAdapter.setPersonas(personas);
@@ -246,9 +276,11 @@ public class DebugModeActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final ItemDebugPersonaBinding binding;
+
             ViewHolder(ItemDebugPersonaBinding b) {
                 super(b.getRoot());
                 this.binding = b;
+                LiquidGlassHelper.attachPressFeedback(b.btnDeleteDebugPersona);
             }
         }
     }
@@ -285,10 +317,10 @@ public class DebugModeActivity extends AppCompatActivity {
             holder.binding.textDebugPostAuthor.setText("Post ID: " + item.getId());
             holder.binding.textDebugPostContent.setText(item.getTextContent());
 
-            // Query first media thumbnail if available
             repository.getExecutor().execute(() -> {
                 List<PostMediaEntity> mediaList = repository.getDebugDatabase().postDao().getMediaForPostSync(item.getId());
                 runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
                     if (mediaList != null && !mediaList.isEmpty()) {
                         Bitmap bm = MediaHelper.loadBitmap(DebugModeActivity.this, mediaList.get(0).getMediaPath(), 100);
                         if (bm != null) {
@@ -312,9 +344,11 @@ public class DebugModeActivity extends AppCompatActivity {
 
         class ViewHolder extends RecyclerView.ViewHolder {
             final ItemDebugPostBinding binding;
+
             ViewHolder(ItemDebugPostBinding b) {
                 super(b.getRoot());
                 this.binding = b;
+                LiquidGlassHelper.attachPressFeedback(b.btnDeleteDebugPost);
             }
         }
     }

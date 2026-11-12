@@ -1,12 +1,14 @@
 package com.example.ui.chat;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,10 +18,14 @@ import com.example.data.entity.MessageEntity;
 import com.example.data.entity.PersonaEntity;
 import com.example.databinding.ItemMessageIncomingBinding;
 import com.example.databinding.ItemMessageOutgoingBinding;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
-import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class MessagesAdapter extends ListAdapter<MessageEntity, RecyclerView.ViewHolder> {
 
@@ -28,6 +34,8 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, RecyclerView.Vie
 
     private String currentSpeakerId = "";
     private final Map<String, PersonaEntity> personaMap = new HashMap<>();
+    private final Set<String> seenMessageIds = new HashSet<>();
+    private boolean initialLoadComplete = false;
 
     public MessagesAdapter() {
         super(new DiffUtil.ItemCallback<MessageEntity>() {
@@ -42,6 +50,16 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, RecyclerView.Vie
                         oldItem.getTextContent().equals(newItem.getTextContent());
             }
         });
+    }
+
+    public void submitMessages(@Nullable List<MessageEntity> list, @Nullable Runnable commitCallback) {
+        if (!initialLoadComplete && list != null) {
+            for (MessageEntity m : list) {
+                seenMessageIds.add(m.getId());
+            }
+            initialLoadComplete = true;
+        }
+        submitList(list, commitCallback);
     }
 
     public void setCurrentSpeakerId(String speakerId) {
@@ -85,6 +103,27 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, RecyclerView.Vie
         } else if (holder instanceof IncomingViewHolder) {
             ((IncomingViewHolder) holder).bind(message);
         }
+        animateNewMessageIfNeeded(holder.itemView, message.getId());
+    }
+
+    private void animateNewMessageIfNeeded(View itemView, String messageId) {
+        if (seenMessageIds.contains(messageId) || LiquidGlassHelper.isReducedMotionEnabled(itemView.getContext())) {
+            return;
+        }
+        seenMessageIds.add(messageId);
+        itemView.animate().cancel();
+        itemView.setAlpha(0f);
+        itemView.setTranslationY(24f);
+        itemView.setScaleX(0.96f);
+        itemView.setScaleY(0.96f);
+        itemView.animate()
+                .alpha(1f)
+                .translationY(0f)
+                .scaleX(1f)
+                .scaleY(1f)
+                .setDuration(210L)
+                .setInterpolator(new DecelerateInterpolator(1.5f))
+                .start();
     }
 
     class OutgoingViewHolder extends RecyclerView.ViewHolder {
@@ -126,7 +165,7 @@ public class MessagesAdapter extends ListAdapter<MessageEntity, RecyclerView.Vie
             if (sender != null) {
                 binding.textMessageSender.setText(sender.getDisplayName());
                 if (sender.getAvatarPath() != null) {
-                    Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), sender.getAvatarPath(), 100);
+                    Bitmap bm = MediaHelper.loadBitmap(binding.getRoot().getContext(), sender.getAvatarPath(), 100);
                     if (bm != null) {
                         binding.imageMessageAvatar.setImageBitmap(bm);
                     } else {

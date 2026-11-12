@@ -5,17 +5,18 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="8dp">
+    android:paddingVertical="6dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/img_debug_post_thumb"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/bg_glass_media_frame"
+        android:contentDescription="Debug Post Thumbnail"
+        android:padding="1dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_feed"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
-        app:strokeColor="@color/border_divider"
-        app:strokeWidth="1dp" />
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.RoundedCard" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -44,10 +45,11 @@
 
     <ImageButton
         android:id="@+id/btn_delete_debug_post"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Delete Debug Post"
+        android:padding="12dp"
         android:src="@drawable/ic_delete"
         app:tint="@color/red_error" />
 

@@ -3,27 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_midnight">
+    android:background="@drawable/bg_liquid_ambient_canvas">
 
-    <!-- Top Bar with Back, Conversation Title & Speaker Swap Action -->
+    <!-- Frosted Liquid Glass Chat Header -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_glass_chrome_bar"
         android:minHeight="64dp"
-        android:background="@color/surface_card"
         android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btn_chat_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cancel"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -33,7 +34,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
             android:layout_marginEnd="8dp"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -55,16 +56,19 @@
                 android:id="@+id/text_chat_speaker_hint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tap right chip to switch persona"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Tap chip to swap speaker"
                 android:textColor="@color/text_tertiary"
                 android:textSize="11sp" />
         </LinearLayout>
 
-        <!-- Swap Speaker Button -->
+        <!-- Frosted Swap Speaker Pill -->
         <LinearLayout
             android:id="@+id/chip_switch_speaker"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
+            android:layout_height="42dp"
+            android:layout_marginEnd="6dp"
             android:background="@drawable/bg_active_persona_chip"
             android:clickable="true"
             android:focusable="true"
@@ -75,12 +79,18 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
+            <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_speaker_avatar"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:background="@color/surface_elevated"
                 android:contentDescription="@string/switch_speaker"
-                android:src="@drawable/ic_person_placeholder" />
+                android:padding="1dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_person_placeholder"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
+                app:strokeColor="@color/glass_border_bright"
+                app:strokeWidth="1dp" />
 
             <TextView
                 android:id="@+id/text_speaker_name"
@@ -89,7 +99,7 @@
                 android:layout_marginStart="6dp"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:maxWidth="90dp"
+                android:maxWidth="96dp"
                 android:textColor="@color/text_primary"
                 android:textSize="12sp"
                 android:textStyle="bold" />
@@ -97,19 +107,11 @@
             <ImageView
                 android:layout_width="14dp"
                 android:layout_height="14dp"
-                android:layout_marginStart="4dp"
+                android:layout_marginStart="5dp"
                 android:contentDescription="@string/switch_speaker"
                 android:src="@drawable/ic_swap"
                 app:tint="@color/indigo_primary" />
         </LinearLayout>
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/border_divider"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Messages Recycler -->
@@ -118,33 +120,34 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:clipToPadding="false"
+        android:paddingTop="10dp"
         android:paddingBottom="12dp"
-        android:paddingTop="8dp"
         app:layout_constraintBottom_toTopOf="@id/layout_chat_input"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_bar" />
 
-    <!-- Chat Input Bar -->
+    <!-- Frosted Translucent Chat Input Bar -->
     <LinearLayout
         android:id="@+id/layout_chat_input"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card"
+        android:background="@drawable/bg_glass_bottom_nav"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp"
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
             android:id="@+id/btn_roleplay_chat_prompt"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/suggest_idea"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_sparkles"
             app:tint="@color/violet_accent" />
 
@@ -156,19 +159,21 @@
             android:background="@drawable/bg_input_field"
             android:hint="@string/type_a_message"
             android:maxLines="4"
-            android:padding="10dp"
+            android:minHeight="44dp"
+            android:paddingHorizontal="14dp"
+            android:paddingVertical="10dp"
             android:textColor="@color/text_primary"
             android:textColorHint="@color/text_tertiary"
             android:textSize="14sp" />
 
         <ImageView
             android:id="@+id/btn_send_message"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="8dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/send"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_send"
             app:tint="@color/indigo_primary" />
     </LinearLayout>

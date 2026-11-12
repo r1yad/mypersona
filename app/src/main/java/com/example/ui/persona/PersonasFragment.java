@@ -14,7 +14,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.data.entity.PersonaEntity;
+import com.example.data.repository.AppRepository;
 import com.example.databinding.FragmentPersonasBinding;
+import com.example.util.LiquidGlassHelper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PersonasFragment extends Fragment implements PersonasAdapter.OnPersonaActionListener {
 
@@ -39,6 +44,8 @@ public class PersonasFragment extends Fragment implements PersonasAdapter.OnPers
         binding.recyclerPersonas.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerPersonas.setAdapter(adapter);
 
+        LiquidGlassHelper.attachPressFeedback(binding.fabCreatePersona, binding.btnEmptyCreateFirstPersona);
+
         viewModel.getActivePersona().observe(getViewLifecycleOwner(), active -> {
             String activeId = active != null ? active.getId() : "";
             adapter.setActivePersonaId(activeId);
@@ -46,11 +53,11 @@ public class PersonasFragment extends Fragment implements PersonasAdapter.OnPers
 
         viewModel.getAllPersonas().observe(getViewLifecycleOwner(), personas -> {
             if (personas != null) {
-                java.util.List<PersonaEntity> sorted = new java.util.ArrayList<>(personas);
-                String order = com.example.data.repository.AppRepository.getInstance(requireContext()).getPersonaSortOrder();
-                if (com.example.data.repository.AppRepository.SORT_PERSONAS_NAME_AZ.equals(order)) {
+                List<PersonaEntity> sorted = new ArrayList<>(personas);
+                String order = AppRepository.getInstance(requireContext()).getPersonaSortOrder();
+                if (AppRepository.SORT_PERSONAS_NAME_AZ.equals(order)) {
                     sorted.sort((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
-                } else if (com.example.data.repository.AppRepository.SORT_PERSONAS_NAME_ZA.equals(order)) {
+                } else if (AppRepository.SORT_PERSONAS_NAME_ZA.equals(order)) {
                     sorted.sort((a, b) -> b.getDisplayName().compareToIgnoreCase(a.getDisplayName()));
                 } else {
                     sorted.sort((a, b) -> Long.compare(b.getUpdatedAt(), a.getUpdatedAt()));
@@ -79,7 +86,7 @@ public class PersonasFragment extends Fragment implements PersonasAdapter.OnPers
         if (persona != null) {
             intent.putExtra(PersonaEditActivity.EXTRA_PERSONA_ID, persona.getId());
         }
-        startActivity(intent);
+        LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
     }
 
     @Override
@@ -98,7 +105,7 @@ public class PersonasFragment extends Fragment implements PersonasAdapter.OnPers
         if (persona == null) return;
         Intent intent = new Intent(requireContext(), PersonaProfileActivity.class);
         intent.putExtra(PersonaProfileActivity.EXTRA_PERSONA_ID, persona.getId());
-        startActivity(intent);
+        LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
     }
 
     @Override

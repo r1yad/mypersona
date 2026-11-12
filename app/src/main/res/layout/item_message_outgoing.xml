@@ -4,15 +4,15 @@
     android:layout_height="wrap_content"
     android:gravity="end"
     android:orientation="vertical"
+    android:paddingStart="52dp"
     android:paddingEnd="12dp"
-    android:paddingStart="48dp"
     android:paddingVertical="4dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_chat_bubble_out"
-        android:maxWidth="280dp"
+        android:maxWidth="288dp"
         android:orientation="vertical"
         android:paddingHorizontal="14dp"
         android:paddingVertical="10dp">
@@ -21,7 +21,7 @@
             android:id="@+id/text_message_sender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/violet_accent"
+            android:textColor="#E0E7FF"
             android:textSize="11sp"
             android:textStyle="bold" />
 
@@ -29,7 +29,8 @@
             android:id="@+id/text_message_body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="3dp"
+            android:lineSpacingExtra="3dp"
             android:textColor="@color/white"
             android:textSize="14sp" />
 
@@ -39,7 +40,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end"
             android:layout_marginTop="4dp"
-            android:textColor="#B3FFFFFF"
+            android:textColor="#CCFFFFFF"
             android:textSize="10sp" />
     </LinearLayout>
 

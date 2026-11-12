@@ -1,7 +1,6 @@
 package com.example.ui.persona;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,8 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.R;
 import com.example.data.entity.PersonaEntity;
 import com.example.databinding.ItemPersonaCardBinding;
-
-import java.io.File;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
 public class PersonasAdapter extends ListAdapter<PersonaEntity, PersonasAdapter.PersonaViewHolder> {
 
@@ -73,6 +72,7 @@ public class PersonasAdapter extends ListAdapter<PersonaEntity, PersonasAdapter.
         public PersonaViewHolder(ItemPersonaCardBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            LiquidGlassHelper.attachPressFeedback(binding.btnPersonaEdit, binding.btnSetActive);
         }
 
         public void bind(PersonaEntity persona) {
@@ -101,7 +101,7 @@ public class PersonasAdapter extends ListAdapter<PersonaEntity, PersonasAdapter.
             }
 
             if (persona.getAvatarPath() != null) {
-                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), persona.getAvatarPath(), 160);
+                Bitmap bm = MediaHelper.loadBitmap(binding.getRoot().getContext(), persona.getAvatarPath(), 160);
                 if (bm != null) {
                     binding.imagePersonaAvatar.setImageBitmap(bm);
                 } else {

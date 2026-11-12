@@ -1,27 +1,21 @@
 package com.example.ui.chat;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.R;
 import com.example.assistant.RoleplayAssistant;
 import com.example.data.entity.ConversationWithDetails;
-import com.example.data.entity.MessageEntity;
 import com.example.data.entity.PersonaEntity;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityChatBinding;
+import com.example.util.LiquidGlassHelper;
 import com.example.util.MediaHelper;
-
-import java.io.File;
-import java.util.List;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -38,6 +32,7 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -56,26 +51,43 @@ public class ChatActivity extends AppCompatActivity {
         binding.recyclerMessages.setLayoutManager(layoutManager);
         binding.recyclerMessages.setAdapter(messagesAdapter);
 
-        binding.btnChatBack.setOnClickListener(v -> finish());
+        LiquidGlassHelper.applyTopInsets(binding.topBar);
+        LiquidGlassHelper.applyImeBottomInsets(binding.layoutChatInput);
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnChatBack,
+                binding.chipSwitchSpeaker,
+                binding.btnRoleplayChatPrompt,
+                binding.btnSendMessage
+        );
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
+        // Keep newest messages visible smoothly whenever IME keyboard opens
+        binding.recyclerMessages.addOnLayoutChangeListener((v, left, top, right, bottom,
+                                                            oldLeft, oldTop, oldRight, oldBottom) -> {
+            if (bottom < oldBottom && messagesAdapter.getItemCount() > 0) {
+                binding.recyclerMessages.post(() ->
+                        binding.recyclerMessages.smoothScrollToPosition(messagesAdapter.getItemCount() - 1));
+            }
         });
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutChatInput, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
-            return windowInsets;
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(ChatActivity.this);
+            }
         });
+
+        binding.btnChatBack.setOnClickListener(v -> LiquidGlassHelper.finishWithGlassTransition(this));
 
         // Toggle speaker mid-chat
-        binding.chipSwitchSpeaker.setOnClickListener(v -> toggleSpeaker());
+        binding.chipSwitchSpeaker.setOnClickListener(v -> {
+            LiquidGlassHelper.pulseView(binding.imageSpeakerAvatar);
+            toggleSpeaker();
+        });
 
         // Roleplay Assistant idea prompt
         binding.btnRoleplayChatPrompt.setOnClickListener(v -> {
             if (currentSpeaker == null) return;
+            LiquidGlassHelper.pulseView(v);
             String prompt = RoleplayAssistant.generateReplyIdea(currentSpeaker, lastMessageText);
             binding.editChatMessage.setText(prompt);
             binding.editChatMessage.setSelection(prompt.length());
@@ -89,7 +101,7 @@ public class ChatActivity extends AppCompatActivity {
     private void loadConversation() {
         repository.loadConversationDetails(conversationId, details -> {
             if (details == null) {
-                finish();
+                LiquidGlassHelper.finishWithGlassTransition(this);
                 return;
             }
             conversationDetails = details;
@@ -101,7 +113,6 @@ public class ChatActivity extends AppCompatActivity {
 
             messagesAdapter.updatePersonas(pA, pB);
 
-            // Default current speaker
             PersonaEntity active = repository.getActivePersonaLive().getValue();
             if (active != null && pB != null && active.getId().equals(pB.getId())) {
                 setSpeaker(pB);
@@ -122,11 +133,9 @@ public class ChatActivity extends AppCompatActivity {
             binding.editChatMessage.setHint("Message as " + speaker.getDisplayName() + "…");
 
             if (speaker.getAvatarPath() != null) {
-                File f = new File(speaker.getAvatarPath());
-                if (f.exists()) {
-                    Bitmap bm = BitmapFactory.decodeFile(f.getAbsolutePath());
-                    if (bm != null) binding.imageSpeakerAvatar.setImageBitmap(bm);
-                    else binding.imageSpeakerAvatar.setImageResource(R.drawable.ic_person_placeholder);
+                Bitmap bm = MediaHelper.loadBitmap(this, speaker.getAvatarPath(), 100);
+                if (bm != null) {
+                    binding.imageSpeakerAvatar.setImageBitmap(bm);
                 } else {
                     binding.imageSpeakerAvatar.setImageResource(R.drawable.ic_person_placeholder);
                 }
@@ -156,7 +165,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void observeMessages() {
         repository.getMessagesForConversationLive(conversationId).observe(this, list -> {
-            messagesAdapter.submitList(list, () -> {
+            messagesAdapter.submitMessages(list, () -> {
                 if (list != null && !list.isEmpty()) {
                     binding.recyclerMessages.scrollToPosition(list.size() - 1);
                     lastMessageText = list.get(list.size() - 1).getTextContent();

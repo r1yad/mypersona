@@ -1,7 +1,6 @@
 package com.example.ui.persona;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.R;
 import com.example.data.entity.PersonaEntity;
 import com.example.databinding.ItemSwitcherPersonaBinding;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +68,7 @@ public class PersonaSwitcherAdapter extends RecyclerView.Adapter<PersonaSwitcher
         public SwitcherViewHolder(ItemSwitcherPersonaBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            LiquidGlassHelper.attachPressFeedback(binding.btnSwitcherProfile);
         }
 
         public void bind(PersonaEntity persona) {
@@ -75,7 +76,7 @@ public class PersonaSwitcherAdapter extends RecyclerView.Adapter<PersonaSwitcher
             binding.textSwitcherUsername.setText("@" + persona.getUsername());
 
             if (persona.getAvatarPath() != null) {
-                Bitmap bm = com.example.util.MediaHelper.loadBitmap(binding.getRoot().getContext(), persona.getAvatarPath(), 120);
+                Bitmap bm = MediaHelper.loadBitmap(binding.getRoot().getContext(), persona.getAvatarPath(), 120);
                 if (bm != null) {
                     binding.imageSwitcherAvatar.setImageBitmap(bm);
                 } else {

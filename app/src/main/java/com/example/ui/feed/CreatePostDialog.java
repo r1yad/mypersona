@@ -1,14 +1,14 @@
 package com.example.ui.feed;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,11 +22,10 @@ import com.example.R;
 import com.example.assistant.RoleplayAssistant;
 import com.example.data.entity.PersonaEntity;
 import com.example.databinding.DialogCreatePostBinding;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.UUID;
+import java.util.List;
 
 public class CreatePostDialog extends DialogFragment {
 
@@ -49,8 +48,12 @@ public class CreatePostDialog extends DialogFragment {
         super.onStart();
         Dialog dialog = getDialog();
         if (dialog != null && dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = dialog.getWindow();
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setWindowAnimations(R.style.GlassDialogAnimation);
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            LiquidGlassHelper.enableDialogWindowBlur(window);
         }
     }
 
@@ -67,6 +70,13 @@ public class CreatePostDialog extends DialogFragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
 
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnCloseDialog,
+                binding.btnRoleplayPrompt,
+                binding.btnAttachImage,
+                binding.btnPublishPost
+        );
+
         thumbnailsAdapter = new PostThumbnailsAdapter((position, path) -> {
             thumbnailsAdapter.removeAt(position);
             updateThumbnailsUi();
@@ -78,7 +88,7 @@ public class CreatePostDialog extends DialogFragment {
             if (persona != null) {
                 binding.textPostingAs.setText("Posting as " + persona.getDisplayName() + " (@" + persona.getUsername() + ")");
                 if (persona.getAvatarPath() != null) {
-                    Bitmap bm = com.example.util.MediaHelper.loadBitmap(requireContext(), persona.getAvatarPath(), 120);
+                    Bitmap bm = MediaHelper.loadBitmap(requireContext(), persona.getAvatarPath(), 120);
                     if (bm != null) {
                         binding.imageAuthorAvatar.setImageBitmap(bm);
                     } else {
@@ -129,8 +139,9 @@ public class CreatePostDialog extends DialogFragment {
             }
 
             binding.btnPublishPost.setEnabled(false);
-            java.util.List<String> mediaPaths = thumbnailsAdapter.getPaths();
+            List<String> mediaPaths = thumbnailsAdapter.getPaths();
             viewModel.createPostWithMedia(activeAuthor.getId(), content, mediaPaths, () -> {
+                if (!isAdded()) return;
                 dismiss();
                 Toast.makeText(requireContext(), "Post published!", Toast.LENGTH_SHORT).show();
             });
@@ -149,7 +160,7 @@ public class CreatePostDialog extends DialogFragment {
 
     private void saveImageToInternalStorage(Uri uri) {
         try {
-            String path = com.example.util.MediaHelper.compressAndSaveWebP(requireContext(), uri, "post");
+            String path = MediaHelper.compressAndSaveWebP(requireContext(), uri, "post");
             if (path != null) {
                 thumbnailsAdapter.addPath(path);
                 updateThumbnailsUi();

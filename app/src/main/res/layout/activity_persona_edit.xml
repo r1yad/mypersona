@@ -3,27 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_midnight">
+    android:background="@drawable/bg_liquid_ambient_canvas">
 
-    <!-- Top Bar -->
+    <!-- Frosted Liquid Glass Top Bar -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/top_bar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:minHeight="56dp"
-        android:background="@color/surface_card"
+        android:background="@drawable/bg_glass_chrome_bar"
+        android:minHeight="62dp"
         android:paddingHorizontal="8dp"
+        android:paddingVertical="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/btn_edit_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/cancel"
-            android:padding="8dp"
+            android:padding="12dp"
             android:src="@drawable/ic_back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -32,43 +33,41 @@
 
         <TextView
             android:id="@+id/text_edit_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="@string/create_persona"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btn_save_persona"
             app:layout_constraintStart_toEndOf="@id/btn_edit_back"
             app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_persona"
+            style="@style/Widget.PersonaNet.GlassButton.Primary"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:backgroundTint="@color/indigo_primary"
+            android:layout_height="42dp"
+            android:layout_marginEnd="6dp"
+            android:paddingHorizontal="16dp"
             android:text="@string/save_persona"
-            android:textColor="@color/white"
             android:textSize="13sp"
-            app:cornerRadius="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:background="@color/border_divider"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Scrollable Form -->
     <ScrollView
+        android:id="@+id/scroll_persona_edit"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:clipToPadding="false"
         android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -79,20 +78,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="14dp">
 
-            <!-- Profile Picture Section -->
+            <!-- Profile Picture Frosted Glass Card -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/bg_glass_card"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:layout_marginBottom="16dp">
+                android:padding="20dp">
 
                 <FrameLayout
                     android:id="@+id/layout_avatar_picker"
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
                     android:clickable="true"
                     android:focusable="true">
 
@@ -100,20 +100,20 @@
                         android:id="@+id/image_edit_avatar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:background="@color/surface_elevated"
                         android:contentDescription="Profile Picture"
+                        android:padding="2dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_person_placeholder"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
                         app:strokeColor="@color/indigo_primary"
                         app:strokeWidth="2dp" />
 
-                    <!-- Camera icon badge -->
                     <LinearLayout
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
+                        android:layout_width="34dp"
+                        android:layout_height="34dp"
                         android:layout_gravity="bottom|end"
-                        android:background="@drawable/bg_avatar_circle"
-                        android:backgroundTint="@color/indigo_primary"
+                        android:background="@drawable/bg_glass_fab"
                         android:gravity="center">
 
                         <ImageView
@@ -129,249 +129,276 @@
                     android:id="@+id/text_avatar_hint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="10dp"
                     android:text="Tap to choose profile picture"
                     android:textColor="@color/indigo_primary"
-                    android:textSize="12sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- Presets Section -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Quick Archetype Preset:"
-                android:textColor="@color/violet_accent"
-                android:textSize="13sp"
-                android:textStyle="bold" />
-
-            <HorizontalScrollView
+            <!-- Quick Archetype Presets Card -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:scrollbars="none">
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-                <LinearLayout
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:text="Quick Archetype Preset"
+                    android:textColor="@color/violet_accent"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/chip_preset_mystic"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:text="🔮 Mystic"
-                        android:textColor="@color/text_primary"
-                        app:strokeColor="@color/border_divider" />
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/chip_preset_sarcastic"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:text="😏 Sarcastic"
-                        android:textColor="@color/text_primary"
-                        app:strokeColor="@color/border_divider" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/chip_preset_mystic"
+                            style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:paddingHorizontal="14dp"
+                            android:text="🔮 Mystic"
+                            android:textSize="12sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/chip_preset_royal"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:text="👑 Royal"
-                        android:textColor="@color/text_primary"
-                        app:strokeColor="@color/border_divider" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/chip_preset_sarcastic"
+                            style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="14dp"
+                            android:text="😏 Sarcastic"
+                            android:textSize="12sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/chip_preset_cyberpunk"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:text="⚡ Cyberpunk"
-                        android:textColor="@color/text_primary"
-                        app:strokeColor="@color/border_divider" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/chip_preset_royal"
+                            style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="14dp"
+                            android:text="👑 Royal"
+                            android:textSize="12sp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/chip_preset_whimsical"
-                        style="@style/Widget.Material3.Button.OutlinedButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="36dp"
-                        android:layout_marginStart="8dp"
-                        android:text="✨ Whimsical"
-                        android:textColor="@color/text_primary"
-                        app:strokeColor="@color/border_divider" />
-                </LinearLayout>
-            </HorizontalScrollView>
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/chip_preset_cyberpunk"
+                            style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="14dp"
+                            android:text="⚡ Cyberpunk"
+                            android:textSize="12sp" />
 
-            <!-- Display Name -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/display_name"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/chip_preset_whimsical"
+                            style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                            android:layout_width="wrap_content"
+                            android:layout_height="40dp"
+                            android:layout_marginStart="8dp"
+                            android:paddingHorizontal="14dp"
+                            android:text="✨ Whimsical"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </HorizontalScrollView>
+            </LinearLayout>
 
-            <EditText
-                android:id="@+id/edit_display_name"
+            <!-- Identity Details Glass Card -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:hint="e.g. Lyra the Arcane"
-                android:inputType="textPersonName"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
-
-            <!-- Username / Handle -->
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/username"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <EditText
-                android:id="@+id/edit_username"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/display_name"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/edit_display_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="e.g. Lyra the Arcane"
+                    android:inputType="textPersonName"
+                    android:paddingHorizontal="14dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/username"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/edit_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="e.g. lyra_arcana"
+                    android:inputType="textNoSuggestions"
+                    android:paddingHorizontal="14dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/bio"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/edit_bio"
+                    android:layout_width="match_parent"
+                    android:layout_height="84dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:gravity="top|start"
+                    android:hint="Brief headline or tagline for this persona…"
+                    android:padding="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Character Voice & Lore Glass Card -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:hint="e.g. lyra_arcana"
-                android:inputType="textNoSuggestions"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
-
-            <!-- Bio -->
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/bio"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_glass_card"
+                android:orientation="vertical"
+                android:padding="16dp">
 
-            <EditText
-                android:id="@+id/edit_bio"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:gravity="top|start"
-                android:hint="Brief headline or tagline for this persona…"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/personality_traits"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-            <!-- Personality Traits -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/personality_traits"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                <EditText
+                    android:id="@+id/edit_personality_traits"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="e.g. Cryptic, observant, scholarly"
+                    android:paddingHorizontal="14dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/edit_personality_traits"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:hint="e.g. Cryptic, observant, scholarly"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/speaking_style"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-            <!-- Speaking Style -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/speaking_style"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                <EditText
+                    android:id="@+id/edit_speaking_style"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="e.g. Poetic, speaks in prophecies and metaphors"
+                    android:paddingHorizontal="14dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/edit_speaking_style"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:hint="e.g. Poetic, speaks in prophecies and metaphors"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/roleplay_instructions"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-            <!-- Roleplay Instructions -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/roleplay_instructions"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
+                <EditText
+                    android:id="@+id/edit_roleplay_instructions"
+                    android:layout_width="match_parent"
+                    android:layout_height="84dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:gravity="top|start"
+                    android:hint="Guidelines on how this character behaves in replies and posts…"
+                    android:padding="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/edit_roleplay_instructions"
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:gravity="top|start"
-                android:hint="Guidelines on how this character behaves in replies and posts…"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="@string/background_story"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
 
-            <!-- Background Story -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="@string/background_story"
-                android:textColor="@color/text_secondary"
-                android:textSize="13sp" />
-
-            <EditText
-                android:id="@+id/edit_background_story"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_input_field"
-                android:gravity="top|start"
-                android:hint="Fictional lore, origin story, affiliations, secrets…"
-                android:padding="10dp"
-                android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_tertiary"
-                android:textSize="14sp" />
+                <EditText
+                    android:id="@+id/edit_background_story"
+                    android:layout_width="match_parent"
+                    android:layout_height="104dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_input_field"
+                    android:gravity="top|start"
+                    android:hint="Fictional lore, origin story, affiliations, secrets…"
+                    android:padding="12dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_tertiary"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <!-- Delete Button (Only shown when editing an existing persona) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_delete_persona"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.PersonaNet.GlassButton.Secondary"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="32dp"
+                android:layout_height="48dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="28dp"
+                android:background="@drawable/bg_glass_destructive_button"
                 android:text="Delete Persona"
                 android:textColor="@color/red_error"
                 android:visibility="gone"
-                app:cornerRadius="12dp"
-                app:strokeColor="@color/red_error" />
+                app:backgroundTint="@null" />
 
         </LinearLayout>
     </ScrollView>

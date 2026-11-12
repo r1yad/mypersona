@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Consistent Liquid Glass Corner Radii -->
+    <dimen name="glass_radius_card">22dp</dimen>
+    <dimen name="glass_radius_panel">20dp</dimen>
+    <dimen name="glass_radius_dialog">26dp</dimen>
+    <dimen name="glass_radius_sheet">28dp</dimen>
+    <dimen name="glass_radius_input">16dp</dimen>
+    <dimen name="glass_radius_button">16dp</dimen>
+    <dimen name="glass_radius_pill">28dp</dimen>
+    <dimen name="glass_radius_media">16dp</dimen>
+    <dimen name="glass_radius_thumb">14dp</dimen>
+
+    <!-- Consistent Spacing Grid -->
+    <dimen name="space_xs">4dp</dimen>
+    <dimen name="space_sm">8dp</dimen>
+    <dimen name="space_md">12dp</dimen>
+    <dimen name="space_lg">16dp</dimen>
+    <dimen name="space_xl">20dp</dimen>
+    <dimen name="space_2xl">24dp</dimen>
+
+    <!-- Accessibility & Chrome -->
+    <dimen name="min_touch_target">48dp</dimen>
+    <dimen name="glass_stroke_width">1dp</dimen>
+    <dimen name="glass_card_elevation">4dp</dimen>
+
+    <!-- Animation Durations -->
+    <integer name="anim_glass_press_down">90</integer>
+    <integer name="anim_glass_press_up">170</integer>
+    <integer name="anim_glass_fragment">210</integer>
+    <integer name="anim_glass_page">250</integer>
+    <integer name="anim_glass_dialog">220</integer>
+</resources>

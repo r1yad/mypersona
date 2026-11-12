@@ -5,28 +5,42 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingEnd="16dp"
-    android:paddingVertical="6dp">
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingVertical="5dp">
 
-    <!-- Connecting Vertical Thread Line for Nested Replies -->
+    <!-- Reddit-style Connecting Vertical Thread Guide Lines -->
+    <LinearLayout
+        android:id="@+id/layout_nest_lines"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:visibility="gone" />
+
     <View
         android:id="@+id/view_comment_nest_line"
         android:layout_width="2dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="8dp"
-        android:background="@color/border_divider"
+        android:background="@color/glass_border_accent"
         android:visibility="gone" />
 
     <!-- Circular Profile Avatar -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/image_comment_avatar"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_marginTop="4dp"
+        android:background="@color/surface_elevated"
         android:contentDescription="@string/app_name"
+        android:padding="1dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_person_placeholder"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle" />
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
+        app:strokeColor="@color/glass_border_bright"
+        app:strokeWidth="1dp" />
 
+    <!-- Frosted Glass Comment Container -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -34,9 +48,10 @@
         android:layout_weight="1"
         android:background="@drawable/bg_rounded_card"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:paddingHorizontal="14dp"
+        android:paddingVertical="12dp">
 
-        <!-- Author row -->
+        <!-- Author & Like Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -47,32 +62,34 @@
                 android:id="@+id/text_comment_author"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/text_comment_time"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/text_tertiary"
                 android:textSize="11sp" />
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
 
             <LinearLayout
                 android:id="@+id/btn_comment_like"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="32dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:minWidth="44dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="6dp">
 
                 <ImageView
                     android:id="@+id/image_comment_like_icon"
@@ -86,21 +103,23 @@
                     android:id="@+id/text_comment_likes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
+                    android:layout_marginStart="5dp"
                     android:text="0"
                     android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Replying To Target Banner -->
+        <!-- Replying To Target Pill -->
         <TextView
             android:id="@+id/text_comment_reply_target"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
-            android:textColor="@color/violet_accent"
+            android:textColor="@color/cyan_accent"
             android:textSize="11sp"
+            android:textStyle="bold"
             android:visibility="gone" />
 
         <!-- Comment Body -->
@@ -109,36 +128,60 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
+            android:lineSpacingExtra="3dp"
             android:textColor="@color/text_primary"
             android:textSize="14sp" />
 
-        <!-- Reply Button Action -->
+        <!-- Bottom Action Row: Reply + Expand/Collapse Replies -->
         <LinearLayout
-            android:id="@+id/btn_comment_reply"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:contentDescription="Reply"
-                android:src="@drawable/ic_reply"
-                app:tint="@color/text_secondary" />
+            <LinearLayout
+                android:id="@+id/btn_comment_reply"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:background="@drawable/bg_glass_pill"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingHorizontal="10dp">
+
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:contentDescription="Reply"
+                    android:src="@drawable/ic_reply"
+                    app:tint="@color/text_secondary" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="Reply"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
+                android:id="@+id/btn_toggle_replies"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="Reply"
-                android:textColor="@color/text_secondary"
+                android:layout_height="32dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_glass_pill_accent"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingHorizontal="10dp"
+                android:textColor="@color/indigo_primary"
                 android:textSize="11sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 

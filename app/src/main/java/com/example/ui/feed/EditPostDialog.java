@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -15,9 +17,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.R;
 import com.example.data.entity.PostMediaEntity;
 import com.example.data.entity.PostWithDetails;
 import com.example.databinding.DialogEditPostBinding;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +87,12 @@ public class EditPostDialog extends DialogFragment {
         super.onStart();
         Dialog dialog = getDialog();
         if (dialog != null && dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = dialog.getWindow();
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setWindowAnimations(R.style.GlassDialogAnimation);
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            LiquidGlassHelper.enableDialogWindowBlur(window);
         }
     }
 
@@ -98,6 +107,12 @@ public class EditPostDialog extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel = new ViewModelProvider(requireActivity()).get(FeedViewModel.class);
+
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnCloseDialog,
+                binding.btnAttachImage,
+                binding.btnSavePost
+        );
 
         binding.editPostContent.setText(initialContent != null ? initialContent : "");
         if (initialContent != null) {
@@ -132,6 +147,7 @@ public class EditPostDialog extends DialogFragment {
             binding.btnSavePost.setEnabled(false);
             List<String> currentMedia = thumbnailsAdapter.getPaths();
             viewModel.updatePost(postId, newContent, currentMedia, () -> {
+                if (!isAdded()) return;
                 dismiss();
                 Toast.makeText(requireContext(), "Post updated!", Toast.LENGTH_SHORT).show();
                 if (onPostUpdatedCallback != null) {
@@ -153,7 +169,7 @@ public class EditPostDialog extends DialogFragment {
 
     private void saveImageToInternalStorage(Uri uri) {
         try {
-            String path = com.example.util.MediaHelper.compressAndSaveWebP(requireContext(), uri, "post");
+            String path = MediaHelper.compressAndSaveWebP(requireContext(), uri, "post");
             if (path != null) {
                 thumbnailsAdapter.addPath(path);
                 updateThumbnailsUi();

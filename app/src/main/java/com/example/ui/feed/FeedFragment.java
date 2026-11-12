@@ -8,17 +8,21 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
+import com.example.R;
 import com.example.data.entity.PersonaEntity;
 import com.example.data.entity.PostWithDetails;
+import com.example.data.repository.AppRepository;
 import com.example.databinding.FragmentFeedBinding;
 import com.example.ui.persona.PersonaEditActivity;
+import com.example.ui.persona.PersonaProfileActivity;
+import com.example.ui.settings.DebugModeActivity;
+import com.example.util.LiquidGlassHelper;
 
 public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickListener {
 
@@ -50,6 +54,14 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
         if (animator instanceof SimpleItemAnimator) {
             ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
         }
+
+        LiquidGlassHelper.attachPressFeedback(
+                binding.fabCreatePost,
+                binding.fabRefreshFeed,
+                binding.fabGoToTop,
+                binding.btnEmptyCreatePersona,
+                binding.layoutDebugModeBanner
+        );
 
         viewModel.getActivePersona().observe(getViewLifecycleOwner(), persona -> {
             String activeId = persona != null ? persona.getId() : "";
@@ -94,30 +106,35 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
         });
 
         binding.fabGoToTop.setOnClickListener(v -> {
+            LiquidGlassHelper.pulseView(v);
             binding.recyclerFeed.smoothScrollToPosition(0);
         });
 
         binding.fabRefreshFeed.setOnClickListener(v -> {
+            LiquidGlassHelper.pulseView(v);
             viewModel.refresh();
         });
 
         binding.fabCreatePost.setOnClickListener(v -> {
+            if (!LiquidGlassHelper.canNavigate()) return;
             CreatePostDialog dialog = new CreatePostDialog();
             dialog.show(getChildFragmentManager(), CreatePostDialog.TAG);
         });
 
         binding.btnEmptyCreatePersona.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), PersonaEditActivity.class));
+            LiquidGlassHelper.startActivityWithGlassTransition(
+                    this, new Intent(requireContext(), PersonaEditActivity.class));
         });
 
         binding.layoutDebugModeBanner.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), com.example.ui.settings.DebugModeActivity.class));
+            LiquidGlassHelper.startActivityWithGlassTransition(
+                    this, new Intent(requireContext(), DebugModeActivity.class));
         });
     }
 
     private void updateDebugBanner() {
         if (binding == null) return;
-        boolean isDebug = com.example.data.repository.AppRepository.getInstance(requireContext()).isDebugModeEnabled();
+        boolean isDebug = AppRepository.getInstance(requireContext()).isDebugModeEnabled();
         binding.layoutDebugModeBanner.setVisibility(isDebug ? View.VISIBLE : View.GONE);
     }
 
@@ -134,7 +151,7 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
     public void onPostClicked(PostWithDetails post) {
         Intent intent = new Intent(requireContext(), PostDetailActivity.class);
         intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getPost().getId());
-        startActivity(intent);
+        LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
     }
 
     @Override
@@ -144,6 +161,7 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
 
     @Override
     public void onEditClicked(PostWithDetails post) {
+        if (!LiquidGlassHelper.canNavigate()) return;
         EditPostDialog dialog = EditPostDialog.newInstance(post);
         dialog.setOnPostUpdatedCallback(() -> viewModel.refresh());
         dialog.show(getChildFragmentManager(), EditPostDialog.TAG);
@@ -151,20 +169,22 @@ public class FeedFragment extends Fragment implements FeedAdapter.OnPostClickLis
 
     @Override
     public void onDeleteClicked(PostWithDetails post) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Delete Post")
-                .setMessage("Are you sure you want to permanently delete this post? This action cannot be undone.")
-                .setPositiveButton("Delete", (dialog, which) -> viewModel.deletePost(post.getPost().getId()))
-                .setNegativeButton("Cancel", null)
-                .show();
+        LiquidGlassHelper.showGlassConfirmDialog(
+                requireContext(),
+                getString(R.string.delete_post_title),
+                getString(R.string.delete_post_message),
+                getString(R.string.delete),
+                true,
+                () -> viewModel.deletePost(post.getPost().getId())
+        );
     }
 
     @Override
     public void onAuthorClicked(PersonaEntity author) {
         if (author == null) return;
-        Intent intent = new Intent(requireContext(), com.example.ui.persona.PersonaProfileActivity.class);
-        intent.putExtra(com.example.ui.persona.PersonaProfileActivity.EXTRA_PERSONA_ID, author.getId());
-        startActivity(intent);
+        Intent intent = new Intent(requireContext(), PersonaProfileActivity.class);
+        intent.putExtra(PersonaProfileActivity.EXTRA_PERSONA_ID, author.getId());
+        LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
     }
 
     @Override

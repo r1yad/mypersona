@@ -1,27 +1,22 @@
 package com.example.ui.persona;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
-import com.example.R;
 import com.example.data.entity.PersonaEntity;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPersonaEditBinding;
+import com.example.util.LiquidGlassHelper;
 import com.example.util.MediaHelper;
 
-import java.io.File;
 import java.util.UUID;
 
 public class PersonaEditActivity extends AppCompatActivity {
@@ -43,11 +38,33 @@ public class PersonaEditActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityPersonaEditBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         repository = AppRepository.getInstance(this);
+
+        LiquidGlassHelper.applyTopInsets(binding.topBar);
+        LiquidGlassHelper.applyImeBottomInsets(binding.scrollPersonaEdit);
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnEditBack,
+                binding.btnSavePersona,
+                binding.btnDeletePersona,
+                binding.layoutAvatarPicker,
+                binding.chipPresetMystic,
+                binding.chipPresetSarcastic,
+                binding.chipPresetRoyal,
+                binding.chipPresetCyberpunk,
+                binding.chipPresetWhimsical
+        );
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(PersonaEditActivity.this);
+            }
+        });
 
         editingPersonaId = getIntent().getStringExtra(EXTRA_PERSONA_ID);
         if (editingPersonaId != null && !editingPersonaId.trim().isEmpty()) {
@@ -61,13 +78,7 @@ public class PersonaEditActivity extends AppCompatActivity {
             binding.btnDeletePersona.setVisibility(View.GONE);
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
-        });
-
-        binding.btnEditBack.setOnClickListener(v -> finish());
+        binding.btnEditBack.setOnClickListener(v -> LiquidGlassHelper.finishWithGlassTransition(this));
         binding.btnSavePersona.setOnClickListener(v -> savePersona());
         binding.btnDeletePersona.setOnClickListener(v -> confirmDelete());
 
@@ -183,14 +194,14 @@ public class PersonaEditActivity extends AppCompatActivity {
 
     private void promptApplyPreset(String name, String username, String bio, String traits, String style, String instructions, String story) {
         if (editingPersonaId != null && !editingPersonaId.isEmpty()) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Apply Preset Archetype")
-                    .setMessage("This will update personality traits, voice style, roleplay instructions, and background story. Your display name and handle will remain unchanged.")
-                    .setPositiveButton("Apply", (dialog, which) -> {
-                        applyPreset(null, null, null, traits, style, instructions, story);
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+            LiquidGlassHelper.showGlassConfirmDialog(
+                    this,
+                    "Apply Preset Archetype",
+                    "This will update personality traits, voice style, roleplay instructions, and background story. Your display name and handle will remain unchanged.",
+                    "Apply",
+                    false,
+                    () -> applyPreset(null, null, null, traits, style, instructions, story)
+            );
         } else {
             applyPreset(name, username, bio, traits, style, instructions, story);
         }
@@ -232,7 +243,6 @@ public class PersonaEditActivity extends AppCompatActivity {
             return;
         }
 
-        // Clean username
         username = username.replaceAll("[^a-zA-Z0-9_]", "").toLowerCase();
         if (username.isEmpty()) {
             username = "persona_" + System.currentTimeMillis() % 10000;
@@ -272,23 +282,23 @@ public class PersonaEditActivity extends AppCompatActivity {
         binding.btnSavePersona.setEnabled(false);
         repository.savePersona(persona, () -> {
             Toast.makeText(this, "Persona saved successfully!", Toast.LENGTH_SHORT).show();
-            finish();
+            LiquidGlassHelper.finishWithGlassTransition(this);
         });
     }
 
     private void confirmDelete() {
         if (existingPersona == null) return;
 
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Persona")
-                .setMessage("Are you sure you want to delete \"" + existingPersona.getDisplayName() + "\"? All posts and messages created by this character will also be deleted.")
-                .setPositiveButton("Delete", (dialog, which) -> {
-                    repository.deletePersona(existingPersona, () -> {
-                        Toast.makeText(this, "Persona deleted", Toast.LENGTH_SHORT).show();
-                        finish();
-                    });
+        LiquidGlassHelper.showGlassConfirmDialog(
+                this,
+                "Delete Persona",
+                "Are you sure you want to delete \"" + existingPersona.getDisplayName() + "\"? All posts and messages created by this character will also be deleted.",
+                "Delete",
+                true,
+                () -> repository.deletePersona(existingPersona, () -> {
+                    Toast.makeText(this, "Persona deleted", Toast.LENGTH_SHORT).show();
+                    LiquidGlassHelper.finishWithGlassTransition(this);
                 })
-                .setNegativeButton("Cancel", null)
-                .show();
+        );
     }
 }

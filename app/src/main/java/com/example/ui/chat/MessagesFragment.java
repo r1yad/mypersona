@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.data.entity.ConversationWithDetails;
 import com.example.databinding.FragmentMessagesBinding;
+import com.example.util.LiquidGlassHelper;
 
 public class MessagesFragment extends Fragment implements ConversationsAdapter.OnConversationClickListener {
 
@@ -38,6 +39,8 @@ public class MessagesFragment extends Fragment implements ConversationsAdapter.O
         binding.recyclerConversations.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerConversations.setAdapter(adapter);
 
+        LiquidGlassHelper.attachPressFeedback(binding.fabNewConversation, binding.btnEmptyStartChat);
+
         viewModel.getConversations().observe(getViewLifecycleOwner(), list -> {
             adapter.submitList(list);
             if (list == null || list.isEmpty()) {
@@ -54,6 +57,7 @@ public class MessagesFragment extends Fragment implements ConversationsAdapter.O
     }
 
     private void openNewConversationDialog() {
+        if (!LiquidGlassHelper.canNavigate()) return;
         NewConversationDialog dialog = new NewConversationDialog();
         dialog.show(getChildFragmentManager(), NewConversationDialog.TAG);
     }
@@ -70,7 +74,7 @@ public class MessagesFragment extends Fragment implements ConversationsAdapter.O
     public void onConversationClicked(ConversationWithDetails conversation) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra(ChatActivity.EXTRA_CONVERSATION_ID, conversation.getConversation().getId());
-        startActivity(intent);
+        LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
     }
 
     @Override

@@ -6,16 +6,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.R;
 import com.example.data.entity.PersonaEntity;
 import com.example.databinding.DialogNewConversationBinding;
+import com.example.util.LiquidGlassHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +37,11 @@ public class NewConversationDialog extends DialogFragment {
         super.onStart();
         Dialog dialog = getDialog();
         if (dialog != null && dialog.getWindow() != null) {
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            Window window = dialog.getWindow();
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawableResource(android.R.color.transparent);
+            window.setWindowAnimations(R.style.GlassDialogAnimation);
+            LiquidGlassHelper.enableDialogWindowBlur(window);
         }
     }
 
@@ -50,6 +57,11 @@ public class NewConversationDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(ChatViewModel.class);
+
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnCancelConversation,
+                binding.btnStartConversation
+        );
 
         viewModel.getAllPersonas().observe(getViewLifecycleOwner(), list -> {
             personaList.clear();
@@ -93,10 +105,14 @@ public class NewConversationDialog extends DialogFragment {
             PersonaEntity pB = personaList.get(posB);
 
             viewModel.startOrGetConversation(pA.getId(), pB.getId(), conv -> {
+                FragmentActivity activity = getActivity();
+                if (!isAdded()) return;
                 dismiss();
-                Intent intent = new Intent(requireContext(), ChatActivity.class);
-                intent.putExtra(ChatActivity.EXTRA_CONVERSATION_ID, conv.getId());
-                startActivity(intent);
+                if (activity != null) {
+                    Intent intent = new Intent(activity, ChatActivity.class);
+                    intent.putExtra(ChatActivity.EXTRA_CONVERSATION_ID, conv.getId());
+                    LiquidGlassHelper.startActivityWithGlassTransition(activity, intent);
+                }
             });
         });
     }

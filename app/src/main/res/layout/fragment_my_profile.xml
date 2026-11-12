@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_midnight">
+    android:background="@android:color/transparent">
 
-    <!-- Top App Bar -->
+    <!-- Frosted Glass Top App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar_my_profile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/surface_card">
+        android:background="@drawable/bg_glass_chrome_bar"
+        app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_my_profile"
@@ -28,15 +29,15 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_my_profile_edit"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.PersonaNet.GlassButton.Secondary"
                     android:layout_width="wrap_content"
-                    android:layout_height="36dp"
+                    android:layout_height="40dp"
+                    android:paddingHorizontal="14dp"
                     android:text="Edit"
                     android:textColor="@color/indigo_primary"
-                    app:cornerRadius="8dp"
                     app:icon="@drawable/ic_edit"
-                    app:iconTint="@color/indigo_primary"
-                    app:strokeColor="@color/indigo_primary" />
+                    app:iconSize="16dp"
+                    app:iconTint="@color/indigo_primary" />
             </LinearLayout>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
@@ -45,7 +46,9 @@
         android:id="@+id/scroll_my_profile"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:fillViewport="true"
+        android:paddingBottom="24dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
@@ -53,115 +56,128 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Banner and Circular Avatar Header -->
+            <!-- Atmospheric Aurora Cover Banner & Overlapping Circular Avatar -->
             <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="180dp">
+                android:layout_height="186dp">
 
                 <View
                     android:id="@+id/view_my_profile_banner"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
-                    android:background="@drawable/bg_chat_bubble_out" />
+                    android:layout_height="136dp"
+                    android:background="@drawable/bg_glass_cover_banner" />
 
                 <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/image_my_profile_avatar"
-                    android:layout_width="90dp"
-                    android:layout_height="90dp"
+                    android:layout_width="92dp"
+                    android:layout_height="92dp"
                     android:layout_gravity="bottom|start"
                     android:layout_marginStart="20dp"
+                    android:background="@color/surface_elevated"
                     android:contentDescription="Profile Avatar"
+                    android:padding="2dp"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_person_placeholder"
                     app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
-                    app:strokeColor="@color/bg_midnight"
-                    app:strokeWidth="4dp" />
+                    app:strokeColor="@color/glass_border_bright"
+                    app:strokeWidth="3dp" />
             </FrameLayout>
 
-            <!-- Persona Details -->
+            <!-- Frosted Profile Header Info Panel -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="20dp"
-                android:paddingTop="8dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="10dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/text_my_profile_name"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textColor="@color/text_primary"
-                        android:textSize="22sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/text_my_profile_badge"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_active_persona_chip"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp"
-                        android:text="★ Active Persona"
-                        android:textColor="@color/emerald_success"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/text_my_profile_username"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textColor="@color/indigo_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/text_my_profile_bio"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:lineSpacingExtra="2dp"
-                    android:textColor="@color/text_primary"
-                    android:textSize="14sp" />
-
-                <!-- Action Button: Switch Persona -->
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_my_profile_switch"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="44dp"
-                    android:layout_marginTop="12dp"
-                    android:text="Switch Active Persona"
-                    android:textColor="@color/violet_accent"
-                    android:textSize="13sp"
-                    app:cornerRadius="10dp"
-                    app:icon="@drawable/ic_personas"
-                    app:iconTint="@color/violet_accent"
-                    app:strokeColor="@color/violet_accent" />
-
-                <!-- Character Traits Card -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp"
-                    app:cardBackgroundColor="@color/surface_card"
-                    app:cardCornerRadius="14dp"
-                    app:strokeColor="@color/border_divider"
-                    app:strokeWidth="1dp">
+                    android:background="@drawable/bg_glass_card"
+                    android:orientation="vertical"
+                    android:padding="16dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/text_my_profile_name"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="2"
+                            android:textColor="@color/text_primary"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/text_my_profile_badge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/bg_active_persona_chip"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="5dp"
+                            android:text="★ Active"
+                            android:textColor="@color/emerald_success"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_my_profile_username"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:textColor="@color/indigo_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/text_my_profile_bio"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:lineSpacingExtra="3dp"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <!-- Glass Switch Persona Button -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_my_profile_switch"
+                        style="@style/Widget.PersonaNet.GlassButton.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="46dp"
+                        android:layout_marginTop="14dp"
+                        android:text="Switch Active Persona"
+                        android:textColor="@color/violet_accent"
+                        android:textSize="13sp"
+                        app:icon="@drawable/ic_personas"
+                        app:iconSize="18dp"
+                        app:iconTint="@color/violet_accent" />
+                </LinearLayout>
+
+                <!-- Frosted Character Traits Panel -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    app:cardBackgroundColor="@android:color/transparent"
+                    app:cardCornerRadius="@dimen/glass_radius_card"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_glass_card"
                         android:orientation="vertical"
-                        android:padding="14dp">
+                        android:padding="16dp">
 
                         <TextView
                             android:layout_width="wrap_content"
@@ -175,7 +191,8 @@
                             android:id="@+id/text_my_profile_traits"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
+                            android:layout_marginTop="8dp"
+                            android:lineSpacingExtra="2dp"
                             android:textColor="@color/violet_accent"
                             android:textSize="13sp" />
 
@@ -183,7 +200,8 @@
                             android:id="@+id/text_my_profile_style"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="6dp"
+                            android:lineSpacingExtra="2dp"
                             android:textColor="@color/text_secondary"
                             android:textSize="13sp" />
                     </LinearLayout>
@@ -193,7 +211,8 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
+                    android:layout_marginHorizontal="4dp"
+                    android:layout_marginTop="18dp"
                     android:layout_marginBottom="8dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
@@ -211,12 +230,13 @@
                         android:id="@+id/text_my_posts_count"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:background="@drawable/bg_input_field"
-                        android:paddingHorizontal="8dp"
-                        android:paddingVertical="2dp"
+                        android:background="@drawable/bg_glass_pill"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
                         android:text="0 posts"
                         android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -225,25 +245,28 @@
                 android:id="@+id/recycler_my_posts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipToPadding="false"
                 android:nestedScrollingEnabled="false"
-                android:paddingBottom="48dp" />
+                android:paddingBottom="40dp" />
 
             <!-- Empty Posts State -->
             <LinearLayout
                 android:id="@+id/layout_empty_my_posts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:background="@drawable/bg_glass_card"
                 android:gravity="center"
                 android:orientation="vertical"
-                android:padding="32dp"
+                android:padding="28dp"
                 android:visibility="gone">
 
                 <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
                     android:contentDescription="No Posts"
                     android:src="@drawable/ic_feed"
-                    app:tint="@color/text_tertiary" />
+                    app:tint="@color/indigo_primary" />
 
                 <TextView
                     android:layout_width="wrap_content"

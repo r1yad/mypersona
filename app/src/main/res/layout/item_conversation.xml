@@ -5,46 +5,51 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="12dp"
-    android:layout_marginVertical="4dp"
-    app:cardBackgroundColor="@color/surface_card"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="1dp"
-    app:strokeColor="@color/border_divider"
-    app:strokeWidth="1dp">
+    android:layout_marginVertical="5dp"
+    app:cardBackgroundColor="@android:color/transparent"
+    app:cardCornerRadius="@dimen/glass_radius_card"
+    app:cardElevation="0dp"
+    app:rippleColor="@color/ripple_color"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_glass_card"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:padding="14dp">
 
         <FrameLayout
-            android:layout_width="48dp"
-            android:layout_height="48dp">
+            android:layout_width="52dp"
+            android:layout_height="52dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_persona_a"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="top|start"
+                android:background="@color/surface_elevated"
                 android:contentDescription="@string/app_name"
+                android:padding="1dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_person_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
-                app:strokeColor="@color/surface_card"
+                app:strokeColor="@color/glass_border_bright"
                 app:strokeWidth="1.5dp" />
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/image_persona_b"
-                android:layout_width="34dp"
-                android:layout_height="34dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 android:layout_gravity="bottom|end"
+                android:background="@color/surface_elevated"
                 android:contentDescription="@string/app_name"
+                android:padding="1dp"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_person_placeholder"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
-                app:strokeColor="@color/surface_card"
+                app:strokeColor="@color/glass_border_bright"
                 app:strokeWidth="1.5dp" />
         </FrameLayout>
 
@@ -58,12 +63,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/text_conv_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:layout_weight="1"
                     android:ellipsize="end"
                     android:maxLines="1"

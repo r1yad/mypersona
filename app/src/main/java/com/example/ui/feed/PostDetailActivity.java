@@ -2,7 +2,6 @@ package com.example.ui.feed;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -13,11 +12,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -29,6 +26,8 @@ import com.example.data.entity.PostMediaEntity;
 import com.example.data.entity.PostWithDetails;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.ActivityPostDetailBinding;
+import com.example.ui.persona.PersonaProfileActivity;
+import com.example.util.LiquidGlassHelper;
 import com.example.util.MediaHelper;
 
 import java.util.ArrayList;
@@ -45,9 +44,11 @@ public class PostDetailActivity extends AppCompatActivity {
     private PersonaEntity currentActivePersona;
     private CommentsAdapter commentsAdapter;
     private CommentWithAuthor replyingToComment = null;
+    private ViewPager2.OnPageChangeCallback detailPageCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LiquidGlassHelper.enableEdgeToEdge(this);
         super.onCreate(savedInstanceState);
         binding = ActivityPostDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -59,6 +60,29 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         repository = AppRepository.getInstance(this);
+
+        LiquidGlassHelper.applyTopInsets(binding.topBar);
+        LiquidGlassHelper.applyImeBottomInsets(binding.layoutCommentInputContainer);
+        binding.layoutDetailMediaContainer.setClipToOutline(true);
+        binding.viewPagerDetailMedia.setPageTransformer(LiquidGlassHelper.createSmoothSliderTransformer());
+
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnBack,
+                binding.btnDetailEdit,
+                binding.btnDetailDelete,
+                binding.btnDetailLike,
+                binding.btnDetailComments,
+                binding.btnRoleplayReplyPrompt,
+                binding.btnSendComment,
+                binding.btnCancelReply
+        );
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                LiquidGlassHelper.finishWithGlassTransition(PostDetailActivity.this);
+            }
+        });
 
         commentsAdapter = new CommentsAdapter(new CommentsAdapter.OnCommentClickListener() {
             @Override
@@ -76,19 +100,7 @@ public class PostDetailActivity extends AppCompatActivity {
         binding.recyclerComments.setAdapter(commentsAdapter);
         binding.recyclerComments.setNestedScrollingEnabled(false);
 
-        binding.btnBack.setOnClickListener(v -> finish());
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.topBar, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(v.getPaddingLeft(), insets.top, v.getPaddingRight(), v.getPaddingBottom());
-            return windowInsets;
-        });
-
-        ViewCompat.setOnApplyWindowInsetsListener(binding.layoutCommentInputContainer, (v, windowInsets) -> {
-            Insets insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), insets.bottom);
-            return windowInsets;
-        });
+        binding.btnBack.setOnClickListener(v -> LiquidGlassHelper.finishWithGlassTransition(this));
 
         repository.getActivePersonaLive().observe(this, persona -> {
             currentActivePersona = persona;
@@ -104,6 +116,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 Toast.makeText(this, "Please select an active persona first", Toast.LENGTH_SHORT).show();
                 return;
             }
+            LiquidGlassHelper.pulseView(v);
             String postBody = currentPost != null ? currentPost.getPost().getTextContent() : "";
             String idea = RoleplayAssistant.generateReplyIdea(currentActivePersona, postBody);
             binding.editComment.setText(idea);
@@ -130,7 +143,8 @@ public class PostDetailActivity extends AppCompatActivity {
         replyingToComment = comment;
         if (comment != null && comment.getAuthor() != null) {
             binding.layoutReplyingBanner.setVisibility(View.VISIBLE);
-            binding.textReplyingBanner.setText("Replying to " + comment.getAuthor().getDisplayName() + " (@" + comment.getAuthor().getUsername() + ")");
+            binding.textReplyingBanner.setText("Replying to " + comment.getAuthor().getDisplayName()
+                    + " (@" + comment.getAuthor().getUsername() + ")");
             updateInputHint();
             binding.editComment.requestFocus();
         } else {
@@ -147,7 +161,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private void loadPostAndComments() {
         repository.loadPostDetails(postId, post -> {
             if (post == null) {
-                finish();
+                LiquidGlassHelper.finishWithGlassTransition(this);
                 return;
             }
             currentPost = post;
@@ -179,30 +193,40 @@ public class PostDetailActivity extends AppCompatActivity {
             }
 
             binding.layoutAuthorHeader.setOnClickListener(v -> {
-                Intent intent = new Intent(this, com.example.ui.persona.PersonaProfileActivity.class);
-                intent.putExtra(com.example.ui.persona.PersonaProfileActivity.EXTRA_PERSONA_ID, author.getId());
-                startActivity(intent);
+                Intent intent = new Intent(this, PersonaProfileActivity.class);
+                intent.putExtra(PersonaProfileActivity.EXTRA_PERSONA_ID, author.getId());
+                LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
             });
         }
 
-        binding.textDetailContent.setText(item.getPost().getTextContent());
+        String text = item.getPost().getTextContent();
+        if (text != null && !text.trim().isEmpty()) {
+            binding.textDetailContent.setVisibility(View.VISIBLE);
+            binding.textDetailContent.setText(text);
+        } else {
+            binding.textDetailContent.setVisibility(View.GONE);
+        }
+
         binding.textDetailLikes.setText(String.valueOf(item.getLikeCount()));
         binding.textDetailComments.setText(String.valueOf(item.getCommentCount()));
 
         updateLikeUi(item.isLikedByActivePersona());
         updateOwnerActions();
 
-        // Like button action in post details
         binding.btnDetailLike.setOnClickListener(v -> {
             animateLikeIcon(binding.imageDetailLikeIcon);
             repository.togglePostLike(postId, this::loadPostAndComments);
         });
 
-        // Comment button action: scroll down directly to comments section and focus input
         binding.btnDetailComments.setOnClickListener(v -> {
             binding.scrollPostDetail.smoothScrollTo(0, binding.layoutCommentsHeader.getTop());
             binding.editComment.requestFocus();
         });
+
+        if (detailPageCallback != null) {
+            binding.viewPagerDetailMedia.unregisterOnPageChangeCallback(detailPageCallback);
+            detailPageCallback = null;
+        }
 
         // Attached Media Slider (ViewPager2)
         List<PostMediaEntity> mediaList = item.getMediaList();
@@ -218,25 +242,25 @@ public class PostDetailActivity extends AppCompatActivity {
                 FullscreenImageViewerActivity.start(this, allImages, clickedPos);
             });
             binding.viewPagerDetailMedia.setAdapter(adapter);
-            if (currentPos >= 0 && currentPos < paths.size()) {
-                binding.viewPagerDetailMedia.setCurrentItem(currentPos, false);
-            }
+            int clampedPos = (currentPos >= 0 && currentPos < paths.size()) ? currentPos : 0;
+            binding.viewPagerDetailMedia.setCurrentItem(clampedPos, false);
 
             int total = paths.size();
             if (total > 1) {
                 binding.textDetailMediaCounter.setVisibility(View.VISIBLE);
-                binding.textDetailMediaCounter.setText("1/" + total);
+                binding.textDetailMediaCounter.setText((clampedPos + 1) + "/" + total);
                 binding.layoutDetailMediaDots.setVisibility(View.VISIBLE);
-                setupDots(binding.layoutDetailMediaDots, total, 0);
+                setupDots(binding.layoutDetailMediaDots, total, clampedPos);
 
-                binding.viewPagerDetailMedia.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                detailPageCallback = new ViewPager2.OnPageChangeCallback() {
                     @Override
                     public void onPageSelected(int position) {
                         super.onPageSelected(position);
                         binding.textDetailMediaCounter.setText((position + 1) + "/" + total);
                         updateDots(binding.layoutDetailMediaDots, position);
                     }
-                });
+                };
+                binding.viewPagerDetailMedia.registerOnPageChangeCallback(detailPageCallback);
             } else {
                 binding.textDetailMediaCounter.setVisibility(View.GONE);
                 binding.layoutDetailMediaDots.setVisibility(View.GONE);
@@ -265,6 +289,7 @@ public class PostDetailActivity extends AppCompatActivity {
         if (isOwner) {
             binding.btnDetailEdit.setVisibility(View.VISIBLE);
             binding.btnDetailEdit.setOnClickListener(v -> {
+                if (!LiquidGlassHelper.canNavigate()) return;
                 EditPostDialog dialog = EditPostDialog.newInstance(currentPost);
                 dialog.setOnPostUpdatedCallback(this::loadPostAndComments);
                 dialog.show(getSupportFragmentManager(), EditPostDialog.TAG);
@@ -272,10 +297,17 @@ public class PostDetailActivity extends AppCompatActivity {
 
             binding.btnDetailDelete.setVisibility(View.VISIBLE);
             binding.btnDetailDelete.setOnClickListener(v -> {
-                repository.deletePost(postId, () -> {
-                    Toast.makeText(this, "Post deleted", Toast.LENGTH_SHORT).show();
-                    finish();
-                });
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        this,
+                        getString(R.string.delete_post_title),
+                        getString(R.string.delete_post_message),
+                        getString(R.string.delete),
+                        true,
+                        () -> repository.deletePost(postId, () -> {
+                            Toast.makeText(this, "Post deleted", Toast.LENGTH_SHORT).show();
+                            LiquidGlassHelper.finishWithGlassTransition(this);
+                        })
+                );
             });
         } else {
             binding.btnDetailEdit.setVisibility(View.GONE);
@@ -284,23 +316,27 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void animateLikeIcon(View iconView) {
+        if (LiquidGlassHelper.isReducedMotionEnabled(this)) return;
+        iconView.animate().cancel();
         ObjectAnimator scaleX = ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1.0f, 1.4f, 1.0f);
         ObjectAnimator scaleY = ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1.0f, 1.4f, 1.0f);
         AnimatorSet set = new AnimatorSet();
         set.playTogether(scaleX, scaleY);
-        set.setDuration(300);
+        set.setDuration(260);
         set.setInterpolator(new OvershootInterpolator(2.0f));
         set.start();
     }
 
     private void setupDots(LinearLayout dotsLayout, int count, int selectedPosition) {
         dotsLayout.removeAllViews();
-        int size = (int) (6 * getResources().getDisplayMetrics().density);
         int margin = (int) (3 * getResources().getDisplayMetrics().density);
 
         for (int i = 0; i < count; i++) {
             ImageView dot = new ImageView(this);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+            );
             lp.setMargins(margin, 0, margin, 0);
             dot.setLayoutParams(lp);
             dot.setImageResource(i == selectedPosition ? R.drawable.dot_indicator_active : R.drawable.dot_indicator_inactive);
@@ -320,7 +356,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private void loadCommentsList() {
         repository.loadComments(postId, list -> {
-            commentsAdapter.submitList(list);
+            commentsAdapter.setFullComments(list);
             if (binding == null) return;
             int count = list != null ? list.size() : 0;
             binding.textDetailComments.setText(String.valueOf(count));
@@ -360,6 +396,9 @@ public class PostDetailActivity extends AppCompatActivity {
         repository.addComment(postId, currentActivePersona.getId(), parentId, text, () -> {
             binding.editComment.setText("");
             binding.btnSendComment.setEnabled(true);
+            if (parentId != null) {
+                commentsAdapter.expandParent(parentId);
+            }
             cancelReply();
             loadCommentsList();
             binding.scrollPostDetail.post(() -> binding.scrollPostDetail.fullScroll(View.FOCUS_DOWN));

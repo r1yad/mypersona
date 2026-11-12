@@ -24,6 +24,8 @@ import com.example.data.entity.PersonaEntity;
 import com.example.data.entity.PostMediaEntity;
 import com.example.data.entity.PostWithDetails;
 import com.example.databinding.ItemPostCardBinding;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,10 +86,19 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
 
     class PostViewHolder extends RecyclerView.ViewHolder {
         private final ItemPostCardBinding binding;
+        private ViewPager2.OnPageChangeCallback activePageCallback;
 
         public PostViewHolder(ItemPostCardBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            binding.layoutPostMediaContainer.setClipToOutline(true);
+            binding.viewPagerPostMedia.setPageTransformer(LiquidGlassHelper.createSmoothSliderTransformer());
+            LiquidGlassHelper.attachPressFeedback(
+                    binding.btnPostLike,
+                    binding.btnPostComment,
+                    binding.btnPostEdit,
+                    binding.btnPostDelete
+            );
         }
 
         public void bind(PostWithDetails item) {
@@ -103,7 +114,7 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
                 binding.textPostHandleTime.setText("@" + author.getUsername() + " • " + timeSpan);
 
                 if (author.getAvatarPath() != null) {
-                    Bitmap bitmap = com.example.util.MediaHelper.loadBitmap(context, author.getAvatarPath(), 120);
+                    Bitmap bitmap = MediaHelper.loadBitmap(context, author.getAvatarPath(), 120);
                     if (bitmap != null) {
                         binding.imagePostAvatar.setImageBitmap(bitmap);
                     } else {
@@ -118,7 +129,14 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
                 binding.imagePostAvatar.setImageResource(R.drawable.ic_person_placeholder);
             }
 
-            binding.textPostContent.setText(item.getPost().getTextContent());
+            String text = item.getPost().getTextContent();
+            if (text != null && !text.trim().isEmpty()) {
+                binding.textPostContent.setVisibility(View.VISIBLE);
+                binding.textPostContent.setText(text);
+            } else {
+                binding.textPostContent.setVisibility(View.GONE);
+            }
+
             binding.textPostLikes.setText(String.valueOf(item.getLikeCount()));
             binding.textPostComments.setText(String.valueOf(item.getCommentCount()));
 
@@ -130,6 +148,12 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
                 binding.imagePostLikeIcon.setImageResource(R.drawable.ic_heart_outline);
                 binding.imagePostLikeIcon.setColorFilter(ContextCompat.getColor(context, R.color.text_secondary));
                 binding.textPostLikes.setTextColor(ContextCompat.getColor(context, R.color.text_secondary));
+            }
+
+            // Unregister previous ViewPager2 callback before rebinding to prevent leaks/jitter
+            if (activePageCallback != null) {
+                binding.viewPagerPostMedia.unregisterOnPageChangeCallback(activePageCallback);
+                activePageCallback = null;
             }
 
             // Attached Media Slider (ViewPager2)
@@ -153,14 +177,15 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
                     binding.layoutMediaDots.setVisibility(View.VISIBLE);
                     setupDots(binding.layoutMediaDots, totalCount, 0);
 
-                    binding.viewPagerPostMedia.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+                    activePageCallback = new ViewPager2.OnPageChangeCallback() {
                         @Override
                         public void onPageSelected(int position) {
                             super.onPageSelected(position);
                             binding.textMediaCounter.setText((position + 1) + "/" + totalCount);
                             updateDots(binding.layoutMediaDots, position);
                         }
-                    });
+                    };
+                    binding.viewPagerPostMedia.registerOnPageChangeCallback(activePageCallback);
                 } else {
                     binding.textMediaCounter.setVisibility(View.GONE);
                     binding.layoutMediaDots.setVisibility(View.GONE);
@@ -189,7 +214,7 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
 
             binding.cardPost.setOnClickListener(v -> listener.onPostClicked(item));
 
-            // Reaction button with icon-only bounce animation
+            // Reaction button with icon-only bounce animation (never animates parent card)
             binding.btnPostLike.setOnClickListener(v -> {
                 animateLikeButton(binding.imagePostLikeIcon);
                 listener.onLikeClicked(item);
@@ -199,11 +224,15 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
         }
 
         private void animateLikeButton(View iconView) {
-            ObjectAnimator scaleX = ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1.0f, 1.4f, 1.0f);
-            ObjectAnimator scaleY = ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1.0f, 1.4f, 1.0f);
+            if (LiquidGlassHelper.isReducedMotionEnabled(iconView.getContext())) {
+                return;
+            }
+            iconView.animate().cancel();
+            ObjectAnimator scaleX = ObjectAnimator.ofFloat(iconView, View.SCALE_X, 1.0f, 1.38f, 1.0f);
+            ObjectAnimator scaleY = ObjectAnimator.ofFloat(iconView, View.SCALE_Y, 1.0f, 1.38f, 1.0f);
             AnimatorSet set = new AnimatorSet();
             set.playTogether(scaleX, scaleY);
-            set.setDuration(300);
+            set.setDuration(260);
             set.setInterpolator(new OvershootInterpolator(2.0f));
             set.start();
         }
@@ -211,12 +240,14 @@ public class FeedAdapter extends ListAdapter<PostWithDetails, FeedAdapter.PostVi
         private void setupDots(LinearLayout dotsLayout, int count, int selectedPosition) {
             dotsLayout.removeAllViews();
             Context ctx = dotsLayout.getContext();
-            int size = (int) (6 * ctx.getResources().getDisplayMetrics().density);
             int margin = (int) (3 * ctx.getResources().getDisplayMetrics().density);
 
             for (int i = 0; i < count; i++) {
                 ImageView dot = new ImageView(ctx);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
                 lp.setMargins(margin, 0, margin, 0);
                 dot.setLayoutParams(lp);
                 dot.setImageResource(i == selectedPosition ? R.drawable.dot_indicator_active : R.drawable.dot_indicator_inactive);

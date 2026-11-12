@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.example.R;
 import com.example.data.entity.PersonaEntity;
@@ -20,9 +22,8 @@ import com.example.databinding.FragmentMyProfileBinding;
 import com.example.ui.feed.EditPostDialog;
 import com.example.ui.feed.FeedAdapter;
 import com.example.ui.feed.PostDetailActivity;
+import com.example.util.LiquidGlassHelper;
 import com.example.util.MediaHelper;
-
-import java.util.List;
 
 public class MyProfileFragment extends Fragment {
 
@@ -43,12 +44,14 @@ public class MyProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         repository = AppRepository.getInstance(requireContext());
 
+        LiquidGlassHelper.attachPressFeedback(binding.btnMyProfileEdit, binding.btnMyProfileSwitch);
+
         feedAdapter = new FeedAdapter(new FeedAdapter.OnPostClickListener() {
             @Override
             public void onPostClicked(PostWithDetails post) {
                 Intent intent = new Intent(requireContext(), PostDetailActivity.class);
                 intent.putExtra(PostDetailActivity.EXTRA_POST_ID, post.getPost().getId());
-                startActivity(intent);
+                LiquidGlassHelper.startActivityWithGlassTransition(MyProfileFragment.this, intent);
             }
 
             @Override
@@ -58,6 +61,7 @@ public class MyProfileFragment extends Fragment {
 
             @Override
             public void onEditClicked(PostWithDetails post) {
+                if (!LiquidGlassHelper.canNavigate()) return;
                 EditPostDialog dialog = EditPostDialog.newInstance(post);
                 dialog.setOnPostUpdatedCallback(() -> loadActivePersonaPosts());
                 dialog.show(getChildFragmentManager(), EditPostDialog.TAG);
@@ -65,14 +69,14 @@ public class MyProfileFragment extends Fragment {
 
             @Override
             public void onDeleteClicked(PostWithDetails post) {
-                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
-                        .setTitle("Delete Post")
-                        .setMessage("Are you sure you want to permanently delete this post? This action cannot be undone.")
-                        .setPositiveButton("Delete", (dialog, which) -> {
-                            repository.deletePost(post.getPost().getId(), () -> loadActivePersonaPosts());
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .show();
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        requireContext(),
+                        getString(R.string.delete_post_title),
+                        getString(R.string.delete_post_message),
+                        getString(R.string.delete),
+                        true,
+                        () -> repository.deletePost(post.getPost().getId(), () -> loadActivePersonaPosts())
+                );
             }
 
             @Override
@@ -83,16 +87,21 @@ public class MyProfileFragment extends Fragment {
 
         binding.recyclerMyPosts.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.recyclerMyPosts.setAdapter(feedAdapter);
+        RecyclerView.ItemAnimator animator = binding.recyclerMyPosts.getItemAnimator();
+        if (animator instanceof SimpleItemAnimator) {
+            ((SimpleItemAnimator) animator).setSupportsChangeAnimations(false);
+        }
 
         binding.btnMyProfileEdit.setOnClickListener(v -> {
             if (activePersona != null) {
                 Intent intent = new Intent(requireContext(), PersonaEditActivity.class);
                 intent.putExtra(PersonaEditActivity.EXTRA_PERSONA_ID, activePersona.getId());
-                startActivity(intent);
+                LiquidGlassHelper.startActivityWithGlassTransition(this, intent);
             }
         });
 
         binding.btnMyProfileSwitch.setOnClickListener(v -> {
+            if (!LiquidGlassHelper.canNavigate()) return;
             PersonaSwitcherBottomSheet.newInstance().show(getParentFragmentManager(), PersonaSwitcherBottomSheet.TAG);
         });
 

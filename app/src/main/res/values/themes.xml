@@ -1,51 +1,136 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.PersonaNet" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Brand Colors -->
+        <!-- Luminous Liquid Glass Brand Colors -->
         <item name="colorPrimary">@color/indigo_primary</item>
         <item name="colorOnPrimary">@color/white</item>
         <item name="colorPrimaryContainer">@color/surface_elevated</item>
         <item name="colorOnPrimaryContainer">@color/text_primary</item>
-        
+
         <item name="colorSecondary">@color/violet_accent</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSecondaryContainer">@color/indigo_glow</item>
+        <item name="colorOnSecondaryContainer">@color/text_primary</item>
 
-        <!-- Surfaces and Backgrounds -->
+        <!-- Atmospheric Surfaces & Backgrounds -->
         <item name="android:windowBackground">@color/bg_midnight</item>
         <item name="colorSurface">@color/surface_card</item>
         <item name="colorOnSurface">@color/text_primary</item>
         <item name="colorSurfaceVariant">@color/surface_elevated</item>
         <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorOutline">@color/border_divider</item>
+        <item name="colorControlHighlight">@color/ripple_color</item>
 
-        <!-- Status & Navigation Bar -->
-        <item name="android:statusBarColor">@color/bg_midnight</item>
-        <item name="android:navigationBarColor">@color/bg_midnight</item>
+        <!-- Edge-to-Edge Transparent System Bars -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:enforceNavigationBarContrast">false</item>
+        <item name="android:enforceStatusBarContrast">false</item>
 
         <item name="android:textColorPrimary">@color/text_primary</item>
         <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="android:textColorHint">@color/text_tertiary</item>
+
+        <!-- Dialog & AlertDialog Styling -->
+        <item name="alertDialogTheme">@style/Theme.PersonaNet.AlertDialog</item>
+        <item name="materialAlertDialogTheme">@style/Theme.PersonaNet.AlertDialog</item>
     </style>
 
+    <!-- Frosted Bottom Sheet Style -->
     <style name="Theme.PersonaNet.BottomSheetDialog" parent="ThemeOverlay.Material3.BottomSheetDialog">
         <item name="bottomSheetStyle">@style/CustomBottomSheetStyle</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:backgroundDimAmount">0.55</item>
     </style>
 
     <style name="CustomBottomSheetStyle" parent="Widget.Material3.BottomSheet">
-        <item name="backgroundTint">@color/surface_card</item>
+        <item name="backgroundTint">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="shapeAppearance">@style/ShapeAppearance.PersonaNet.LargeComponent</item>
     </style>
 
+    <!-- Frosted Glass Dialog & AlertDialog -->
+    <style name="Theme.PersonaNet.AlertDialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:windowBackground">@drawable/bg_glass_dialog</item>
+        <item name="android:windowAnimationStyle">@style/GlassDialogAnimation</item>
+        <item name="android:backgroundDimAmount">0.60</item>
+        <item name="colorSurface">@color/glass_surface_dialog</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorPrimary">@color/indigo_primary</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.PersonaNet.DialogButton.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.PersonaNet.DialogButton.Negative</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.PersonaNet.DialogButton.Negative</item>
+    </style>
+
+    <style name="Widget.PersonaNet.DialogButton.Positive" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/indigo_primary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="rippleColor">@color/ripple_accent</item>
+    </style>
+
+    <style name="Widget.PersonaNet.DialogButton.Negative" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="rippleColor">@color/ripple_color</item>
+    </style>
+
+    <style name="GlassDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/glass_dialog_in</item>
+        <item name="android:windowExitAnimation">@anim/glass_dialog_out</item>
+    </style>
+
+    <!-- Bottom Navigation Active Glass Indicator -->
+    <style name="Widget.PersonaNet.BottomNavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/indigo_glow</item>
+        <item name="android:width">58dp</item>
+        <item name="android:height">32dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.PersonaNet.Pill</item>
+    </style>
+
+    <!-- Reusable Glass Buttons -->
+    <style name="Widget.PersonaNet.GlassButton.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/bg_glass_button_primary</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="rippleColor">@color/ripple_color</item>
+    </style>
+
+    <style name="Widget.PersonaNet.GlassButton.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@null</item>
+        <item name="android:background">@drawable/bg_glass_button_secondary</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="rippleColor">@color/ripple_color</item>
+    </style>
+
+    <!-- Shape Appearances -->
     <style name="ShapeAppearance.PersonaNet.LargeComponent" parent="ShapeAppearance.Material3.LargeComponent">
-        <item name="cornerSizeTopLeft">24dp</item>
-        <item name="cornerSizeTopRight">24dp</item>
+        <item name="cornerSizeTopLeft">28dp</item>
+        <item name="cornerSizeTopRight">28dp</item>
         <item name="cornerSizeBottomLeft">0dp</item>
         <item name="cornerSizeBottomRight">0dp</item>
     </style>
+
     <style name="ShapeAppearance.PersonaNet.Circle" parent="ShapeAppearance.Material3.Corner.Full">
         <item name="cornerSize">50%</item>
     </style>
+
     <style name="ShapeAppearance.PersonaNet.RoundedCard" parent="ShapeAppearance.Material3.Corner.Medium">
-        <item name="cornerSize">10dp</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+
+    <style name="ShapeAppearance.PersonaNet.Pill" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerSize">50%</item>
     </style>
 </resources>

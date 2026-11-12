@@ -1,7 +1,6 @@
 package com.example.ui.settings;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +11,14 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.R;
-import com.example.backup.BackupManager;
 import com.example.data.repository.AppRepository;
 import com.example.databinding.FragmentSettingsBinding;
+import com.example.util.LiquidGlassHelper;
+import com.example.util.MediaHelper;
 
 public class SettingsFragment extends Fragment {
 
@@ -58,6 +57,16 @@ public class SettingsFragment extends Fragment {
 
         viewModel = new ViewModelProvider(requireActivity()).get(SettingsViewModel.class);
 
+        LiquidGlassHelper.attachPressFeedback(
+                binding.btnSettingPostOrg,
+                binding.btnSettingPersonaOrg,
+                binding.btnSettingDebugMode,
+                binding.btnExportBackup,
+                binding.btnImportBackup,
+                binding.btnDeduplicateMedia,
+                binding.btnClearAllData
+        );
+
         viewModel.getDatabaseStatsLive().observe(getViewLifecycleOwner(), stats -> {
             binding.textDbStats.setText(stats);
         });
@@ -83,18 +92,18 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        // Content Organization
-        binding.btnSettingPostOrg.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), PostOrganizationActivity.class));
-        });
+        // Content Organization with smooth transitions
+        binding.btnSettingPostOrg.setOnClickListener(v ->
+                LiquidGlassHelper.startActivityWithGlassTransition(
+                        this, new Intent(requireContext(), PostOrganizationActivity.class)));
 
-        binding.btnSettingPersonaOrg.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), PersonaOrganizationActivity.class));
-        });
+        binding.btnSettingPersonaOrg.setOnClickListener(v ->
+                LiquidGlassHelper.startActivityWithGlassTransition(
+                        this, new Intent(requireContext(), PersonaOrganizationActivity.class)));
 
-        binding.btnSettingDebugMode.setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), DebugModeActivity.class));
-        });
+        binding.btnSettingDebugMode.setOnClickListener(v ->
+                LiquidGlassHelper.startActivityWithGlassTransition(
+                        this, new Intent(requireContext(), DebugModeActivity.class)));
 
         updateOrganizationSummaries();
 
@@ -108,16 +117,20 @@ public class SettingsFragment extends Fragment {
         binding.btnImportBackup.setOnClickListener(v -> {
             boolean isRestoreMode = binding.radioFullRestore.isChecked();
             if (isRestoreMode) {
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("Full Wipe & Restore")
-                        .setMessage("Full Restore mode will wipe all local data and replace it entirely with the contents of the backup. Proceed?")
-                        .setPositiveButton("Select Archive", (dialog, which) -> {
-                            openDocumentLauncher.launch(new String[]{"application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*"});
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        requireContext(),
+                        "Full Wipe & Restore",
+                        "Full Restore mode will wipe all local data and replace it entirely with the contents of the backup. Proceed?",
+                        "Select Archive",
+                        true,
+                        () -> openDocumentLauncher.launch(new String[]{
+                                "application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*"
                         })
-                        .setNegativeButton("Cancel", null)
-                        .show();
+                );
             } else {
-                openDocumentLauncher.launch(new String[]{"application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*"});
+                openDocumentLauncher.launch(new String[]{
+                        "application/zip", "application/x-zip-compressed", "application/octet-stream", "*/*"
+                });
             }
         });
 
@@ -126,11 +139,13 @@ public class SettingsFragment extends Fragment {
             binding.btnDeduplicateMedia.setEnabled(false);
             AppRepository repo = AppRepository.getInstance(requireContext());
             repo.getExecutor().execute(() -> {
-                int removed = com.example.util.MediaHelper.deduplicateMediaDatabase(requireContext(), repo.getDatabase());
+                int removed = MediaHelper.deduplicateMediaDatabase(requireContext(), repo.getDatabase());
+                if (!isAdded()) return;
                 requireActivity().runOnUiThread(() -> {
+                    if (binding == null) return;
                     binding.btnDeduplicateMedia.setEnabled(true);
                     viewModel.refreshStats();
-                    String msg = removed > 0 
+                    String msg = removed > 0
                             ? "✔ Successfully cleaned " + removed + " duplicate image files (SHA-256 matching)!"
                             : "✔ Storage clean: No duplicate images detected.";
                     binding.textBackupStatus.setText(msg);
@@ -141,19 +156,21 @@ public class SettingsFragment extends Fragment {
         });
 
         // Clear Database
-        binding.btnClearAllData.setOnClickListener(v -> {
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Clear All Data")
-                    .setMessage("This will delete all personas, posts, comments, likes, and messages from your device. Are you sure?")
-                    .setPositiveButton("Clear Everything", (dialog, which) -> {
-                        viewModel.clearAllData();
-                        binding.textBackupStatus.setText("Database cleared. Ready for fresh character creation.");
-                        binding.textBackupStatus.setTextColor(requireContext().getColor(R.color.text_secondary));
-                        Toast.makeText(requireContext(), "Database cleared", Toast.LENGTH_SHORT).show();
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
-        });
+        binding.btnClearAllData.setOnClickListener(v ->
+                LiquidGlassHelper.showGlassConfirmDialog(
+                        requireContext(),
+                        "Clear All Data",
+                        "This will delete all personas, posts, comments, likes, and messages from your device. Are you sure?",
+                        "Clear Everything",
+                        true,
+                        () -> {
+                            viewModel.clearAllData();
+                            binding.textBackupStatus.setText("Database cleared. Ready for fresh character creation.");
+                            binding.textBackupStatus.setTextColor(requireContext().getColor(R.color.text_secondary));
+                            Toast.makeText(requireContext(), "Database cleared", Toast.LENGTH_SHORT).show();
+                        }
+                )
+        );
     }
 
     private void updateOrganizationSummaries() {
@@ -164,7 +181,7 @@ public class SettingsFragment extends Fragment {
         } else if (AppRepository.SORT_POSTS_MOST_LIKED.equals(postOrder)) {
             binding.textPostOrgSummary.setText("Most liked posts first");
         } else {
-            binding.textPostOrgSummary.setText("Newest posts first");
+            binding.textPostOrgSummary.setText("Custom Drag & Drop / Newest first");
         }
 
         String personaOrder = repo.getPersonaSortOrder();

@@ -5,16 +5,19 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="8dp">
+    android:paddingVertical="6dp">
 
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/img_debug_avatar"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@color/surface_elevated"
+        android:contentDescription="Debug Persona Avatar"
+        android:padding="1dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_person_placeholder"
         app:shapeAppearanceOverlay="@style/ShapeAppearance.PersonaNet.Circle"
-        app:strokeColor="@color/indigo_primary"
+        app:strokeColor="@color/glass_border_accent"
         app:strokeWidth="1.5dp" />
 
     <LinearLayout
@@ -42,10 +45,11 @@
 
     <ImageButton
         android:id="@+id/btn_delete_debug_persona"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Delete Debug Persona"
+        android:padding="12dp"
         android:src="@drawable/ic_delete"
         app:tint="@color/red_error" />
 
